@@ -14,7 +14,7 @@ export class Product extends BaseEntity {
   title: string;
 
   @Column()
-  code: string;
+  discountCode: string;
 
   @Column()
   price: number;

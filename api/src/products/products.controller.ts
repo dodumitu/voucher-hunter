@@ -15,15 +15,17 @@ export class ProductsController {
 
   @Post()
   async addProduct(
+    @Body('id') prodId: string,
     @Body('brand') prodBrand: string,
     @Body('description') prodDesc: string,
     @Body('expire date') prodDate: Date,
     @Body('title') prodTitle: string,
     @Body('discountCode ') prodCode: string,
     @Body('quantity') prodQty: number,
-    @Body('discount detail') prodDetail: string,
+    @Body('discountDetail') prodDetail: string,
   ) {
     const generatedId = await this.productsService.insertProduct(
+      prodId,
       prodBrand,
       prodDesc,
       prodDate,

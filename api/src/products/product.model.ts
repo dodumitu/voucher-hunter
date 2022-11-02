@@ -1,9 +1,15 @@
 import * as mongoose from 'mongoose';
 
 export const ProductSchema = new mongoose.Schema({
-  title: { type: String, required: true },
+  id: { type: String, required: true },
+  brand: { type: String, required: true },
   description: { type: String, required: true },
+  expireDate: { type: Date, required: true },
+  title: { type: String, required: true },
+  discountCode: { type: String, required: true },
+  qty: { type: Number, required: true },
   price: { type: Number, required: true },
+  discountDetails: { type: String, required: true },
 });
 
 export interface Product extends mongoose.Document {

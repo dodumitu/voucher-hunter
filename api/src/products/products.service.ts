@@ -40,9 +40,13 @@ export class ProductsService {
     const products = await this.productModel.find().exec();
     return products.map((prod) => ({
       id: prod.id,
-      title: prod.title,
+      brand: prod.brand,
       description: prod.description,
-      price: prod.price,
+      expireDate: prod.expireDate,
+      title: prod.title,
+      discountCode: prod.discountCode,
+      quantity: prod.qty,
+      discountDetail: prod.discountDetails,
     }));
   }
 
@@ -51,28 +55,48 @@ export class ProductsService {
 
     return {
       id: product.id,
-      title: product.title,
+      brand: product.brand,
       description: product.description,
-      price: product.price,
+      expireDate: product.expireDate,
+      title: product.title,
+      discountCode: product.discountCode,
+      quantity: product.qty,
+      discountDetail: product.discountDetails,
     };
   }
 
   async updateProduct(
     id: string,
-    title: string,
+    brand: string,
     description: string,
-    price: number,
+    expireDate: Date,
+    title: string,
+    discountCode: string,
+    quantity: number,
+    discountDetail: string,
   ) {
     const product = await this.findProduct(id);
 
-    if (title) {
-      product.title = title;
+    if (brand) {
+      product.brand = brand;
     }
     if (description) {
       product.description = description;
     }
-    if (price) {
-      product.price = price;
+    if (expireDate) {
+      product.expireDate = expireDate;
+    }
+    if (title) {
+      product.title = title;
+    }
+    if (discountCode) {
+      product.discountCode = discountCode;
+    }
+    if (quantity) {
+      product.qty = quantity;
+    }
+    if (discountDetail) {
+      product.discountDetails = discountDetail;
     }
 
     product.save();

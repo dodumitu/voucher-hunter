@@ -2,4 +2,9 @@ http://localhost:3000/product/get/all :  lấy tất cả product
 
 http://localhost:3000/product/"id của product" : lấy ra 1 product cụ thể
 
+
+
+
 các route được định nghĩa trong src/products/controller
+
+CRUD: http://localhost:3000/product/ "route trong controller"

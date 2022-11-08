@@ -5,7 +5,7 @@ export const ProductSchema = new Schema(
     // id: { type: String, required: true },
     brand: { type: String, required: true },
     description: { type: String, required: true },
-    expireDate: { type: Date, required: true },
+    expireDate: { type: String, required: true },
     title: { type: String, required: true },
     discountCode: { type: String, required: true },
     qty: { type: Number, required: true },
@@ -16,10 +16,10 @@ export const ProductSchema = new Schema(
 );
 
 export interface Product extends Document {
-  id: string;
+  // id: string;
   brand: string;
   description: string;
-  expireDate: Date;
+  expireDate: string;
   title: string;
   discountCode: string;
   qty: number;

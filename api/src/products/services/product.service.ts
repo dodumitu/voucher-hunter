@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto, UpdateProductDto } from '../dto/product.dto';
 import { ProductRepository } from '../repositories/product.repository';
-// import { CategoryRepository } from '../repositories/category.repository';
 import { isValidObjectId } from 'mongoose';
 
 @Injectable()
@@ -36,9 +35,6 @@ export class ProductService {
 
     if (product) {
       await product
-        // .populate({ path: 'user', select: '-password -refreshToken' })
-        // .populate({ path: 'user', select: 'name email' })
-        // .populate('categories')
         .populate([
           {
             path: 'categories',
@@ -47,15 +43,10 @@ export class ProductService {
             },
             select: 'title',
             options: { limit: 100, sort: { name: 1 } },
-            // populate: [{
-            //   path: '',
-            // },]
           },
         ])
         .execPopulate();
-      // console.log(products.populated('user'));
-      // products.depopulate('user');
-      // console.log(products.populated('user'));
+
       return product;
     } else {
       throw new NotFoundException(product_id);
@@ -68,20 +59,20 @@ export class ProductService {
     return await this.productRepository.findByIdAndUpdate(product_id, data);
   }
 
-  async createProductDto(product: CreateProductDto) {
+  async createProduct(product: CreateProductDto) {
     const new_product = await this.productRepository.create(product);
-    if (product.categories) {
-      await this.productRepository.updateMany(
-        {
-          _id: { $in: product.categories },
-        },
-        {
-          $push: {
-            product: new_product._id,
-          },
-        },
-      );
-    }
+    // if (product.categories) {
+    //   await this.productRepository.updateMany(
+    //     {
+    //       _id: { $in: product.categories },
+    //     },
+    //     {
+    //       $push: {
+    //         product: new_product._id,
+    //       },
+    //     },
+    //   );
+    // }
     return new_product;
   }
 

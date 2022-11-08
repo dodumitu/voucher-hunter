@@ -13,8 +13,6 @@ import {
 } from '@nestjs/common';
 import { CreateProductDto, UpdateProductDto } from '../dto/product.dto';
 import { ProductService } from '../services/product.service';
-import { ExceptionLoggerFilter } from '../../utils/exceptionLogger.filter';
-import { HttpExceptionFilter } from '../../utils/httpException.filter';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetProductQuery } from '../queries/getProduct.query';
 import { CreateProductCommand } from '../commands/createProduct.command';
@@ -22,7 +20,7 @@ import { AuthGuard } from '@nestjs/passport';
 // import { CreateProductCommand } from '../commands/createProduct.command';
 // import { GetProductQuery } from '../queries/getProduct.query';
 
-@Controller('products')
+@Controller('product')
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
@@ -31,7 +29,7 @@ export class ProductController {
   ) {}
 
   @Get(':id')
-  @UseFilters(HttpExceptionFilter)
+  // @UseFilters(HttpExceptionFilter)
   // @UseFilters(ExceptionLoggerFilter)
   getProductById(@Param('id') id: string) {
     return this.productService.getProductById(id);
@@ -42,11 +40,10 @@ export class ProductController {
     return this.queryBus.execute(new GetProductQuery(id));
   }
 
-  // @Post()
-  // @UseGuards(AuthGuard('jwt'))
-  // async createPost(@Req() req: any, @Body() post: CreatePostDto) {
-  //   return this.postService.createPost(req.user, post);
-  // }
+  @Post()
+  async createProduct(@Body() product: CreateProductDto) {
+    return this.productService.createProduct(product);
+  }
 
   @Post('create-by-command')
   // @UseGuards(AuthGuard('jwt'))
@@ -78,7 +75,7 @@ export class ProductController {
     return await this.productService.getByCategories(category_ids);
   }
 
-  @Get('get/array')
+  @Get('get/all')
   async getByArray() {
     return this.productService.getByArray();
   }

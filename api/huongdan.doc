@@ -1,0 +1,3 @@
+http://localhost:3000/product/get/all :  lấy tất cả product
+
+http://localhost:3000/product/"id của product" : lấy ra 1 product cụ thể

@@ -13,8 +13,6 @@ import { Request } from 'express';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './product.dto';
 import { ProductFilterDTO } from './product.filter.dto';
-import { title } from 'process';
-
 @Controller('products')
 export class ProductController {
   constructor(private productService: ProductService) {}

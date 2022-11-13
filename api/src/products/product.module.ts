@@ -1,26 +1,14 @@
 import { Module } from '@nestjs/common';
+import { ProductController } from './product.controller';
+import { ProductService } from './product.service';
 import { MongooseModule } from '@nestjs/mongoose';
-
-import { ProductRepository } from './repositories/product.repository';
-
-import { ProductController } from './controllers/product.controller';
-import { ProductService } from './services/product.service';
-import { ProductSchema } from './models/product.model';
-import { CqrsModule } from '@nestjs/cqrs';
-import { CreateProductHandler } from './handler/createProduct.handler';
-import { GetProductHandler } from './handler/getProduct.handler';
+import { Product, ProductSchema } from './product.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema }]),
-    CqrsModule,
+    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
   ],
   controllers: [ProductController],
-  providers: [
-    ProductService,
-    ProductRepository,
-    CreateProductHandler,
-    GetProductHandler,
-  ],
+  providers: [ProductService],
 })
 export class ProductModule {}

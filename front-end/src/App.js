@@ -1,16 +1,20 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Login from './Page/Login/Login';
-import SignUp from './Page/SignUp/SignUp';
-import DetailPost from './Page/DetailPost/DetailPost';
+import { Routes, Route } from "react-router-dom";
+import Home from './pages/Home/Home';
+import Login from './pages/Login/Login';
+import SignUp from './pages/SignUp/SignUp';
+import DetailItem from './pages/DetailItem/DetailItem';
 
 function App() {
   return (
-    <div className="App">
-      {/*<Login/>*/}
-      <SignUp/>
-      {/*<DetailPost/>*/}
-    </div>
+    <Routes>
+      <Route path="" element={<Home />} />
+      <Route path="detailitem" element={<DetailItem />} />
+      <Route path="login" element={<Login />} />
+      <Route path="signup" element={<SignUp />} />
+      <Route path="*" element={<div>404 Page</div>} />
+    </Routes>
   );
 }
 

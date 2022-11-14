@@ -1,0 +1,16 @@
+.carousel-caption {
+    color: black;
+}
+
+.home__slide {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media screen and (min-width: 769px) {
+    .home__slide {
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+}

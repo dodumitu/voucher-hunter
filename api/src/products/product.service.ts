@@ -67,10 +67,10 @@ export class ProductService {
     return deletedProduct;
   }
 
-  find(options) {
+  async find(options) {
     return this.productModel.find(options);
   }
-  count(options) {
+  async count(options) {
     return this.productModel.count(options).exec();
   }
 }

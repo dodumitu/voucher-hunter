@@ -23,7 +23,7 @@ export class ProductController {
     return allProducts;
   }
 
-  @Get('/:id')
+  @Get('/get/:id')
   async getProduct(@Param('id') id: string) {
     const product = await this.productService.getProduct(id);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại!');

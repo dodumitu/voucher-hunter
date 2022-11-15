@@ -8,35 +8,43 @@ import {
   Param,
   NotFoundException,
   Req,
+  Query,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './product.dto';
-import { ProductFilterDTO } from './product.filter.dto';
+import { FilterProductDTO } from './product.filter.dto';
 @Controller('products')
 export class ProductController {
   constructor(private productService: ProductService) {}
 
-  @Get('/all')
-  async getAllProducts() {
-    const allProducts = await this.productService.getAllProducts();
-    return allProducts;
+  @Get('/')
+  async getProducts(@Query() filterProductDTO: FilterProductDTO) {
+    if (Object.keys(filterProductDTO).length) {
+      const filteredProducts = await this.productService.getFilteredProducts(
+        filterProductDTO,
+      );
+      return filteredProducts;
+    } else {
+      const allProducts = await this.productService.getAllProducts();
+      return allProducts;
+    }
   }
 
-  @Get('/get/:id')
+  @Get('/:id')
   async getProduct(@Param('id') id: string) {
     const product = await this.productService.getProduct(id);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại!');
     return product;
   }
 
-  @Post('/')
+  @Post('post/')
   async addProduct(@Body() createProductDTO: CreateProductDto) {
     const product = await this.productService.addProduct(createProductDTO);
     return product;
   }
 
-  @Put('/:id')
+  @Put('update/:id')
   async updateProduct(
     @Param('id') id: string,
     @Body() createProductDTO: CreateProductDto,
@@ -49,30 +57,10 @@ export class ProductController {
     return product;
   }
 
-  @Delete('/:id')
+  @Delete('delete/:id')
   async deleteProduct(@Param('id') id: string) {
     const product = await this.productService.deleteProduct(id);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
     return 'Đã xoá ' + product.title;
-  }
-
-  @Get('/search')
-  async search(@Req() req: Request) {
-    let options = {};
-
-    if (req.query.s) {
-      options = {
-        $or: [
-          { title: new RegExp(req.query.s.toString(), 'i') },
-          { description: new RegExp(req.query.s.toString(), 'i') },
-        ],
-      };
-    }
-
-    const query = this.productService.find(options);
-
-    const data = await query;
-
-    return data;
   }
 }

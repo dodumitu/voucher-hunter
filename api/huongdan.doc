@@ -1,9 +1,10 @@
-http://localhost:3000/products/all :  lấy tất cả product
+http://localhost:5400/products :  lấy tất cả product
 
-http://localhost:3000/products/get/"id của product" : lấy ra 1 product cụ thể
+http://localhost:5400/products/"id của product" : lấy ra 1 product cụ thể
 
-http://localhost:3000/products/search?s= "keywords tìm kiếm" : tìm kiếm bằng keywords
+http://localhost:5400/products?search= "keywords tìm kiếm" : tìm kiếm bằng keywords
 
+http://localhost:5400/products?category= "category sản phẩm": lọc theo danh mục
 
 
 
@@ -11,4 +12,4 @@ http://localhost:3000/products/search?s= "keywords tìm kiếm" : tìm kiếm b�
 
 các route được định nghĩa trong src/products/controller
 
-CRUD: http://localhost:3000/product/ "route trong controller"
+CRUD: http://localhost:3000/products/ "route trong controller"

@@ -3,7 +3,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './product.entity';
 import { CreateProductDto } from './product.dto';
-import { ProductFilterDTO } from './product.filter.dto';
+import { FilterProductDTO } from './product.filter.dto';
 
 @Injectable()
 export class ProductService {
@@ -11,29 +11,6 @@ export class ProductService {
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
   ) {}
-
-  async getFilteredProducts(
-    filterProductDTO: ProductFilterDTO,
-  ): Promise<Product[]> {
-    const { categories, search } = filterProductDTO;
-    let products = await this.getAllProducts();
-
-    if (search) {
-      products = products.filter(
-        (product) =>
-          product.title.includes(search) ||
-          product.description.includes(search),
-      );
-    }
-
-    if (categories) {
-      products = products.filter(
-        (product) => product.categories === categories,
-      );
-    }
-
-    return products;
-  }
 
   async getAllProducts(): Promise<Product[]> {
     const products = await this.productModel.find().exec();
@@ -72,5 +49,26 @@ export class ProductService {
   }
   async count(options) {
     return this.productModel.count(options).exec();
+  }
+
+  async getFilteredProducts(
+    filterProductDTO: FilterProductDTO,
+  ): Promise<Product[]> {
+    const { category, search } = filterProductDTO;
+    let products = await this.getAllProducts();
+
+    if (search) {
+      products = products.filter(
+        (product) =>
+          product.title.includes(search) ||
+          product.description.includes(search),
+      );
+    }
+
+    if (category) {
+      products = products.filter((product) => product.category === category);
+    }
+
+    return products;
   }
 }

@@ -10,7 +10,7 @@ export class CreateProductDto {
   qty: number;
   price: number;
   discountDetails: string;
-  categories: [string];
+  category: string;
 }
 
 export class UpdateProductDto {
@@ -23,5 +23,5 @@ export class UpdateProductDto {
   qty: number;
   price: number;
   discountDetails: string;
-  categories: [string];
+  category: string;
 }

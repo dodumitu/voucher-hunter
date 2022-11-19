@@ -44,13 +44,6 @@ export class ProductService {
     return deletedProduct;
   }
 
-  async find(options) {
-    return this.productModel.find(options);
-  }
-  async count(options) {
-    return this.productModel.count(options).exec();
-  }
-
   async getFilteredProducts(
     filterProductDTO: FilterProductDTO,
   ): Promise<Product[]> {

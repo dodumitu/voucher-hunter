@@ -7,6 +7,18 @@ http://localhost:5400/products?search= "keywords tìm kiếm" : tìm kiếm bằ
 http://localhost:5400/products?category= "category sản phẩm": lọc theo danh mục
 
 
+login/register
+
+http://localhost:5400/auth
+
+@post: http://localhost:5400/auth/register : đăng ký
+
+@post: http://localhost:5400/auth/login : đăng nhập
+
+@get: http://localhost:5400/auth/user : access user's profile
+
+@get: http://localhost:5400/auth/admin : access bảng điều khiển của admin 
+
 
 
 

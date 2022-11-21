@@ -53,8 +53,8 @@ export class ProductService {
     if (search) {
       products = products.filter(
         (product) =>
-          product.title.includes(search) ||
-          product.description.includes(search),
+          product.title?.includes(search) ||
+          product.description?.includes(search),
       );
     }
 

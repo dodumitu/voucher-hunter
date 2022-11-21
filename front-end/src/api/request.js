@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const ins = axios.create({
 //   baseURL: process.env.REACT_APP_BASE_URL,
-  baseURL: 'http://localhost:9000',
+  baseURL: 'http://localhost:5400',
 });
 
 ins.interceptors.request.use(function (config) {

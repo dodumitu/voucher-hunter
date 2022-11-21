@@ -1,11 +1,29 @@
-.carousel-caption {
+.home-carousel-caption {
+    width: 40%;
     color: black;
+    left: 60%;
+    top: 0%;
+    margin: -24px 0 0 12px;
 }
 
 .home__slide {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: start;
+}
+
+.carousel-indicators {
+    bottom: -34px;
+}
+
+.carousel-indicators [data-bs-target] {
+    background-color: #ffffff;
+}
+
+.carousel-control-next {
+    right: -10%;
+}
+
+.carousel-control-prev {
+    left: -10%;
 }
 
 @media screen and (min-width: 769px) {

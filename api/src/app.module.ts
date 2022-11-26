@@ -4,17 +4,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductModule } from './products/product.module';
-
-import { UserModule } from './users/user.module';
-import { AuthModule } from './auth/auth.module';
-// import { NewsModule } from './news/news.module';
+import { NewsModule } from './news/news.module';
+import { UserModule } from './user/user.module';
 // import { HomeModule } from './home/home.module';
+// import { HomeService } from './home/home.service';
 @Module({
   imports: [
     ProductModule,
     UserModule,
-    AuthModule,
-    // NewsModule,
+    NewsModule,
     // HomeModule,
     ConfigModule.forRoot({
       isGlobal: true,

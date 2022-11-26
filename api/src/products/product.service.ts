@@ -12,6 +12,28 @@ export class ProductService {
     private readonly productModel: Model<ProductDocument>,
   ) {}
 
+  async getHomeProduct() {
+    const products = await this.productModel.find().exec();
+    const slideProduct = [];
+    for (let i = 0; i < 5; i++) {
+      const idx = Math.floor(Math.random() * products.length);
+      slideProduct.push(products[idx]);
+      products.splice(idx, 1);
+    }
+    const featureProduct = [];
+    for (let i = 0; i < 5; i++) {
+      const idx = Math.floor(Math.random() * products.length);
+      featureProduct.push(products[idx]);
+      products.splice(idx, 1);
+    }
+    return {
+      success: true,
+      '5 sản phẩm admin: ': slideProduct,
+      '5 sản phẩm nổi bật: ': featureProduct,
+      'tất cả sản phẩm': products,
+    };
+  }
+
   async getAllProducts(): Promise<Product[]> {
     const products = await this.productModel.find().exec();
     return products;

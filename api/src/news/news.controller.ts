@@ -16,7 +16,11 @@ import { CreateNewsDto } from './news.dto';
 @Controller('news')
 export class NewsController {
   constructor(private newsService: NewsService) {}
-
+  // @Get('/')
+  // async getHomeNews() {
+  //   const homeNews = await this.newsService.getHomeNews();
+  //   return { homeNews };
+  // }
   @Get('/')
   async getAllNews() {
     const allNews = await this.newsService.getAllNews();
@@ -30,13 +34,13 @@ export class NewsController {
     return news;
   }
 
-  @Post('post/')
+  @Post('/post/')
   async addNews(@Body() CreateNewsDto: CreateNewsDto) {
     const news = await this.newsService.addNews(CreateNewsDto);
     return news;
   }
 
-  @Put('update/:id')
+  @Put('/update/:id')
   async updateNews(
     @Param('id') id: string,
     @Body() createnewsDTO: CreateNewsDto,
@@ -46,7 +50,7 @@ export class NewsController {
     return news;
   }
 
-  @Delete('delete/:id')
+  @Delete('/delete/:id')
   async deleteNews(@Param('id') id: string) {
     const news = await this.newsService.deleteNews(id);
     if (!news) throw new NotFoundException('Sản phẩm không tồn tại');

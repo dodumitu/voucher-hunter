@@ -17,17 +17,21 @@ import { FilterProductDTO } from './product.filter.dto';
 @Controller('products')
 export class ProductController {
   constructor(private productService: ProductService) {}
-
+  // @Get('/')
+  // async getHomeProduct() {
+  //   const homeProduct = await this.productService.getHomeProduct();
+  //   return { homeProduct };
+  // }
   @Get('/')
   async getProducts(@Query() filterProductDTO: FilterProductDTO) {
     if (Object.keys(filterProductDTO).length) {
       const filteredProducts = await this.productService.getFilteredProducts(
         filterProductDTO,
       );
-      return filteredProducts;
+      return { success: 1, filteredProducts };
     } else {
       const allProducts = await this.productService.getAllProducts();
-      return allProducts;
+      return { success: true, data: allProducts };
     }
   }
 
@@ -35,16 +39,16 @@ export class ProductController {
   async getProduct(@Param('id') id: string) {
     const product = await this.productService.getProduct(id);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại!');
-    return product;
+    return { success: true, data: product };
   }
 
-  @Post('post/')
+  @Post('/post/')
   async addProduct(@Body() createProductDTO: CreateProductDto) {
     const product = await this.productService.addProduct(createProductDTO);
-    return product;
+    return { success: true, data: product };
   }
 
-  @Put('update/:id')
+  @Put('/update/:id')
   async updateProduct(
     @Param('id') id: string,
     @Body() createProductDTO: CreateProductDto,
@@ -54,10 +58,10 @@ export class ProductController {
       createProductDTO,
     );
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
-    return product;
+    return { success: true, data: product };
   }
 
-  @Delete('delete/:id')
+  @Delete('/delete/:id')
   async deleteProduct(@Param('id') id: string) {
     const product = await this.productService.deleteProduct(id);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');

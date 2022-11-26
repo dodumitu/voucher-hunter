@@ -11,8 +11,18 @@ export class NewsService {
   ) {}
 
   async getAllNews(): Promise<News[]> {
-    const products = await this.newsModel.find().exec();
-    return products;
+    const news = await this.newsModel.find().exec();
+    return news;
+  }
+
+  async getHomeNews() {
+    const news = await this.newsModel.find().exec();
+
+    const newsestNews = news.slice(0, 5);
+    return {
+      success: true,
+      data: newsestNews,
+    };
   }
 
   async getNews(id: string): Promise<News> {

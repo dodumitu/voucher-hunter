@@ -34,6 +34,11 @@ export class ProductController {
       return { success: true, data: allProducts };
     }
   }
+  @Get('/homeproduct')
+  async getHome(@Req() request: Request) {
+    const homeProduct = await this.productService.getHomeProduct();
+    return { success: 1, data: homeProduct };
+  }
 
   @Get('/:id')
   async getProduct(@Param('id') id: string) {

@@ -27,6 +27,15 @@ export class NewsController {
     return allNews;
   }
 
+  @Get('/homenews')
+  async getHomeNews() {
+    const homeNews = await this.newsService.getHomeNews();
+    return {
+      success: true,
+      data: homeNews,
+    };
+  }
+
   @Get('/:id')
   async getNews(@Param('id') id: string) {
     const news = await this.newsService.getNews(id);

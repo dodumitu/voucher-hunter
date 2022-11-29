@@ -28,9 +28,8 @@ export class ProductService {
     }
     return {
       success: true,
-      '5 sản phẩm admin: ': slideProduct,
-      '5 sản phẩm nổi bật: ': featureProduct,
-      'tất cả sản phẩm': products,
+      'slide 5 sản phẩm admin: ': slideProduct,
+      'slide 5 sản phẩm nổi bật: ': featureProduct,
     };
   }
 

@@ -1,3 +1,6 @@
+API list: http://localhost:5400/api
+
+
 @get: http://localhost:5400/products :  lấy tất cả product
 
 @get: http://localhost:5400/products/"id của product" : lấy ra 1 product cụ thể
@@ -16,6 +19,8 @@ http://localhost:5400/auth
 @post: http://localhost:5400/auth/login : đăng nhập
 
 @get: http://localhost:5400/user/profile : access user's profile
+Header: key: "authorization"
+        value: "Bearer /token get được sau khi login/"
 
 
 sau khi login sẽ nhận được token, paste token vào authorizaton (bearer token)

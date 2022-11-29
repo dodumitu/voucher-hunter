@@ -1,12 +1,33 @@
-import { IsNotEmpty } from 'class-validator';
-
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MinLength,
+} from 'class-validator';
 export class CreateUserDto {
-  @IsNotEmpty() email: string;
-  // @IsNotEmpty() name: string;
-  @IsNotEmpty() password: string;
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+  @IsNotEmpty()
+  @MinLength(8)
+  @IsString()
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'mật khẩu yếu',
+  })
+  password: string;
+
+  // @IsString()
+  // @MinLength(8)
+  // @Matches('password')
+  // passwordConfirm: string;
 }
 
 export class LoginUserDto {
-  @IsNotEmpty() email: string;
-  @IsNotEmpty() password: string;
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+  @IsNotEmpty()
+  @IsString()
+  password: string;
 }

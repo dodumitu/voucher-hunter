@@ -1,5 +1,5 @@
 {
-  "name": "study-nestjs",
+  "name": "x-career-5",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -31,6 +31,7 @@
     "@nestjs/microservices": "^9.1.4",
     "@nestjs/mongoose": "^7.2.4",
     "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/swagger": "^6.1.3",
     "@nestjs/typeorm": "^9.0.1",
     "@types/aws-sdk": "^2.7.0",
     "amqp-connection-manager": "^4.1.7",
@@ -47,6 +48,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "swagger-ui-express": "^4.6.0",
     "typeorm": "^0.3.10"
   },
   "devDependencies": {

@@ -35,27 +35,4 @@ export class UserController {
     const data = await this.userService.updateInfo(id, updateUser);
     return new ResponseData(HttpStatus.OK, data);
   }
-  // @UseGuards(AuthGuard())
-  // @Put('/:id')
-  // public async updateCustomer(
-  //   @Res() res,
-  //   @Param('id') id: string,
-  //   @Body() updateUserDto: UpdateUserInfoDto,
-  // ) {
-  //   try {
-  //     const user = await this.userService.update(id, updateUserDto);
-  //     if (!user) {
-  //       throw new NotFoundException('User does not exist!');
-  //     }
-  //     return res.status(HttpStatus.OK).json({
-  //       message: 'User has been successfully updated',
-  //       user,
-  //     });
-  //   } catch (err) {
-  //     return res.status(HttpStatus.BAD_REQUEST).json({
-  //       message: 'Error: Customer not updated!',
-  //       status: 400,
-  //     });
-  //   }
-  // }
 }

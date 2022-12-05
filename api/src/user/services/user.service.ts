@@ -5,13 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
-import {
-  CreateUserDto,
-  LoginUserDto,
-  UpdateUserInfoDto,
-} from '../dto/user.dto';
+import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../models/user.model';
+import { UpdateUserInfoDto } from '../dto/updateUserInfoDto';
+import { UpdatePhoneDto } from '../dto/update-phone.dto';
+import { updateEmailDto } from '../dto/update-email.dto';
+import { updatePasswordDto } from '../dto/update-password.dto';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -59,6 +59,65 @@ export class UserService {
     const updatedUser = await this.userRepository.findByIdAndUpdate(
       { _id: id },
       updateInfo,
+    );
+
+    if (!updatedUser) {
+      throw new NotFoundException();
+    }
+    return updatedUser;
+  }
+
+  async updatePhone(id: string, updatePhone: UpdatePhoneDto) {
+    const user = await this.userRepository.findByIdAndUpdate(
+      { _id: id },
+      updatePhone,
+    );
+
+    const checkPhone = await this.userRepository.findByCondition({
+      phone: user.phone,
+    });
+    if (checkPhone) {
+      throw new HttpException(
+        `Error update phone ${user.phone} user`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    user.phone = updatePhone.phone;
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
+  }
+
+  async updateEmail(id: string, updateEmail: updateEmailDto) {
+    const user = await this.userRepository.findByIdAndUpdate(
+      { _id: id },
+      updateEmail,
+    );
+
+    const checkPhone = await this.userRepository.findByCondition({
+      email: user.email,
+    });
+    if (checkPhone) {
+      throw new HttpException(
+        `Error update phone ${user.email} user`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    user.email = updateEmail.email;
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
+  }
+
+  async updatePassword(id: string, updatePassword: updatePasswordDto) {
+    updatePassword.password = await bcrypt.hash(updatePassword.password, 10);
+    const updatedUser = await this.userRepository.findByIdAndUpdate(
+      { _id: id },
+      updatePassword,
     );
 
     if (!updatedUser) {

@@ -7,10 +7,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-export class CreateUserDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
+export class updatePasswordDto {
   @IsNotEmpty()
   @MinLength(8)
   @IsString()
@@ -23,13 +20,4 @@ export class CreateUserDto {
   // @MinLength(8)
   // @Matches('password')
   // passwordConfirm: string;
-}
-
-export class LoginUserDto {
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-  @IsNotEmpty()
-  @IsString()
-  password: string;
 }

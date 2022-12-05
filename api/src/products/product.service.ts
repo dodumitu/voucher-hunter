@@ -4,12 +4,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './product.entity';
 import { CreateProductDto } from './product.dto';
 import { FilterProductDTO } from './product.filter.dto';
+import { softDeletePlugin, SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name)
-    private readonly productModel: Model<ProductDocument>,
+    private readonly productModel: SoftDeleteModel<ProductDocument>,
   ) {}
 
   async getHomeProduct() {
@@ -60,8 +61,10 @@ export class ProductService {
     return updatedProduct;
   }
 
-  async deleteProduct(id: string): Promise<any> {
-    const deletedProduct = await this.productModel.findByIdAndRemove(id);
+  async deleteProduct(id: string) {
+    const filter = { _id: id };
+
+    const deletedProduct = await this.productModel.softDelete(filter);
     return deletedProduct;
   }
 

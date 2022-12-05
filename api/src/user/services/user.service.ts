@@ -1,8 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
-import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  UpdateUserInfoDto,
+} from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
-
+import { User } from '../models/user.model';
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -43,5 +52,18 @@ export class UserService {
     return await this.userRepository.findByCondition({
       email: email,
     });
+  }
+
+  async updateInfo(id: string, updateInfo: UpdateUserInfoDto) {
+    updateInfo.password = await bcrypt.hash(updateInfo.password, 10);
+    const updatedUser = await this.userRepository.findByIdAndUpdate(
+      { _id: id },
+      updateInfo,
+    );
+
+    if (!updatedUser) {
+      throw new NotFoundException();
+    }
+    return updatedUser;
   }
 }

@@ -13,7 +13,9 @@ import {
 import { Request } from 'express';
 import { NewsService } from './news.sevice';
 import { CreateNewsDto } from './news.dto';
+import { ApiTags } from '@nestjs/swagger';
 @Controller('news')
+@ApiTags('news')
 export class NewsController {
   constructor(private newsService: NewsService) {}
   // @Get('/')

@@ -65,4 +65,7 @@ export class BaseRepository<T extends Document> {
   async findByIdAndUpdate(id, update) {
     return this.model.findByIdAndUpdate(id, update);
   }
+  async findByEmailAndUpdate(email, update) {
+    return this.model.findByIdAndUpdate(email, update);
+  }
 }

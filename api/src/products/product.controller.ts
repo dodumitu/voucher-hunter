@@ -14,7 +14,10 @@ import { Request } from 'express';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './product.dto';
 import { FilterProductDTO } from './product.filter.dto';
+import { ApiTags } from '@nestjs/swagger';
+
 @Controller('products')
+@ApiTags('products')
 export class ProductController {
   constructor(private productService: ProductService) {}
   // @Get('/')
@@ -70,6 +73,6 @@ export class ProductController {
   async deleteProduct(@Param('id') id: string) {
     const product = await this.productService.deleteProduct(id);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
-    return 'Đã xoá ' + product.title;
+    return 'Đã xoá ';
   }
 }

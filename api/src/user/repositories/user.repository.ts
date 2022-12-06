@@ -6,6 +6,7 @@ import { User } from '../models/user.model';
 
 @Injectable()
 export class UserRepository extends BaseRepository<User> {
+  [x: string]: any;
   constructor(
     @InjectModel('User')
     private readonly userModel: Model<User>,

@@ -9,6 +9,7 @@ import {
   Put,
   Req,
   Res,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -16,7 +17,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { diskStorage } from 'multer';
-import path, { extname } from 'path';
+import path, { extname, join } from 'path';
 import { ApiTags } from '@nestjs/swagger';
 import { ResponseData } from 'src/common/response/ResponseData';
 import { updateEmailDto } from '../dto/update-email.dto';
@@ -24,11 +25,19 @@ import { updatePasswordDto } from '../dto/update-password.dto';
 import { UpdatePhoneDto } from '../dto/update-phone.dto';
 import { UpdateUserInfoDto } from '../dto/updateUserInfoDto';
 import { UserService } from '../services/user.service';
+import { createReadStream } from 'fs';
+import { Response } from 'express';
+import { User } from '../models/user.model';
+import { map, Observable, tap, from, of } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('user')
 @ApiTags('user')
 export class UserController {
-  constructor(private userService: UserService) {}
+  SERVER_URL = 'http://localhost:5400/';
+  constructor(
+    private userService: UserService, // private readonly localFilesService: LocalFilesService,
+  ) {}
   @UseGuards(AuthGuard())
   @Get('profile')
   async getProfile(@Req() req: any) {
@@ -86,12 +95,36 @@ export class UserController {
     };
   }
 
-  @Post('upload-profile-picture')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
-    Storage: diskStorage({
-      destination: './uploadedFiles/avatars',
-    });
+  @UseGuards(AuthGuard())
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './profileimages',
+
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  uploadFile(@UploadedFile() Image, @Req() req): Observable<Object> {
+    const user: User = req.user;
+    return from(
+      this.userService.updateOne(user.id, { profileImage: Image.filename }),
+    ).pipe(map((user: User) => ({ success: true, data: user })));
+  }
+  @Get('profile-image/:imagename')
+  findProfileImage(
+    @Param('imagename') imagename,
+    @Res() res,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+  ): Observable<Object> {
+    return of(res.sendFile(join(process.cwd(), '/profileimages/' + imagename)));
   }
 }

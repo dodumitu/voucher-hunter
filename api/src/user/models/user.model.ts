@@ -1,5 +1,4 @@
 import { Schema, Document } from 'mongoose';
-
 const UserSchema = new Schema(
   {
     name: String,
@@ -8,6 +7,7 @@ const UserSchema = new Schema(
     phone: String,
     email: String,
     password: String,
+    profileImage: String,
   },
   {
     collection: 'users',
@@ -23,4 +23,5 @@ export interface User extends Document {
   phone: string;
   email: string;
   password: string;
+  profileImage: string;
 }

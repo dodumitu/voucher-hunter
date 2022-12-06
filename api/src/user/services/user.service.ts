@@ -7,7 +7,6 @@ import {
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import { User } from '../models/user.model';
 import { UpdateUserInfoDto } from '../dto/updateUserInfoDto';
 import { UpdatePhoneDto } from '../dto/update-phone.dto';
 import { updateEmailDto } from '../dto/update-email.dto';
@@ -54,11 +53,30 @@ export class UserService {
     });
   }
 
+  async findById(id) {
+    return await this.userRepository.findByCondition({
+      _id: id,
+    });
+  }
+
   async updateInfo(id: string, updateInfo: UpdateUserInfoDto) {
     updateInfo.password = await bcrypt.hash(updateInfo.password, 10);
     const updatedUser = await this.userRepository.findByIdAndUpdate(
       { _id: id },
       updateInfo,
+    );
+
+    if (!updatedUser) {
+      throw new NotFoundException();
+    }
+    return updatedUser;
+  }
+
+  async updateOne(id: string, data: any) {
+    // data.password = await bcrypt.hash(data.password, 10);
+    const updatedUser = await this.userRepository.findByIdAndUpdate(
+      { _id: id },
+      data,
     );
 
     if (!updatedUser) {

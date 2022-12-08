@@ -7,19 +7,15 @@ import { ProductModule } from './products/product.module';
 import { NewsModule } from './news/news.module';
 import { UserModule } from './user/user.module';
 import * as Joi from '@hapi/joi';
-// import { HomeModule } from './home/home.module';
-// import { HomeService } from './home/home.service';
 @Module({
   imports: [
     ProductModule,
     UserModule,
     NewsModule,
-    // HomeModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
         UPLOADED_FILES_DESTINATION: Joi.string().required(),
-        // ...
       }),
     }),
     MongooseModule.forRoot(process.env.MONGODB_URL, {

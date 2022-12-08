@@ -60,7 +60,6 @@ export class UserService {
   }
 
   async updateInfo(id: string, updateInfo: UpdateUserInfoDto) {
-    updateInfo.password = await bcrypt.hash(updateInfo.password, 10);
     const updatedUser = await this.userRepository.findByIdAndUpdate(
       { _id: id },
       updateInfo,

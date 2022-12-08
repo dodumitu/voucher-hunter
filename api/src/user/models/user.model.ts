@@ -2,7 +2,7 @@ import { Schema, Document } from 'mongoose';
 const UserSchema = new Schema(
   {
     name: String,
-    address: String,
+    nationality: String,
     gender: String,
     phone: String,
     email: String,
@@ -18,7 +18,7 @@ export { UserSchema };
 
 export interface User extends Document {
   name: string;
-  address: string;
+  nationality: string;
   gender: string;
   phone: string;
   email: string;

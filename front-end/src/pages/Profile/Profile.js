@@ -1,10 +1,15 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
-import { Container, Row, Col, Nav, Button, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Nav, Button, Modal, Alert } from 'react-bootstrap';
 import { PersonCircle, Telephone, Envelope, ShieldLock, Camera } from 'react-bootstrap-icons';
 import DatePicker from 'react-date-picker';
+import request from '../../api/request';
+import { useForm } from "react-hook-form";
+import useAuth from '../../hooks/useAuth';
 import './profile.css';
+
+const nations = ["Chọn quốc tịch", "Việt Nam", "Ả Rập Xê Út", "Afghanistan", "Ai Cập", "Albania", "Algeria", "Ấn Độ", "Andorra", "Angola", "Anh", "Antigua và Barbuda", "Áo", "Argentina", "Armenia", "Azerbaijan", "Ba Lan", "Bắc Macedonia", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belize", "Bénin", "Bhutan", "Bỉ", "Bờ Biển Ngà", "Bồ Đào Nha", "Bolivia", "Bosnia và Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Các tiểu vương quốc Ả Rập Thống nhất", "Cameroon", "Campuchia", "Canada", "Cape Verde", "Chad", "Chile", "Colombia", "Comoros", "Cộng hòa Congo", "Cộng hòa dân chủ Congo", "Cộng hòa Dominican", "Cộng hòa Séc", "Cộng hòa Trung Phi", "Costa Rica", "Croatia", "Cuba", "Djibouti", "Dominica", "Đài Loan", "Đan Mạch", "Đông Timor", "Đức", "Ecuador", "El Salvador", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Gabon", "Gambia", "Georgia", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea Xích đạo", "Guinea-Bissau", "Guyana", "Hà Lan", "Haiti", "Hàn Quốc", "Hoa Kỳ", "Honduras", "Hungary", "Hy Lạp", "Iceland", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Jamaica", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Lào", "Latvia", "Lesotho", "Liban", "Liberia", "Libya", "Liechtenstein", "Liên bang Micronesia", "Lithuania", "Luxembourg", "Ma-rốc", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Mauritania", "Mauritius", "Mexico", "Moldova", "Monaco", "Mông Cổ", "Montenegro", "Mozambique", "Myanmar", "Na Uy", "Nam Phi", "Nam Sudan", "Namibia", "Nauru", "Nepal", "reNew Zealand", "Nga", "Nhật Bản", "Nicaragua", "Niger", "Nigeria", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Phần Lan", "Pháp", "Philippines", "Qatar", "Quần đảo Marshall", "Quần đảo Solomon", "Romania", "Rwanda", "Saint Kitts và Nevis", "Saint Lucia", "Saint Vincent và Grenadines", "Samoa", "San Marino", "São Tomé và Príncipe", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Síp", "Slovakia", "Slovenia", "Somalia", "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Syria", "Tajikistan", "Tanzania", "Tây Ban Nha", "Thái Lan", "Thành Vatican", "Thổ Nhĩ Kỳ", "Thụy Điển", "Thụy Sĩ", "Togo", "Tonga", "Triều Tiên", "Trinidad và Tobago", "Trung Quốc", "Tunisia", "Turkmenistan", "Tuvalu", "Úc", "Uganda", "Ukraine", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Ý", "Yemen", "Zambia", "Zimbabwe",]
 
 export default function Profile() {
     const [src, setSrc] = useState();
@@ -15,6 +20,168 @@ export default function Profile() {
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const [isDisabledPhone, setDisabledPhone] = useState(true);
+
+    const enablePhone = () => setDisabledPhone(false);
+    const disablePhone = () => setDisabledPhone(true);
+
+    const [isDisabledEmail, setDisabledEmail] = useState(true);
+
+    const enableEmail = () => setDisabledEmail(false);
+    const disableEmail = () => setDisabledEmail(true);
+
+    const { user } = useAuth();
+
+    const [userInfo, setUserInfo] = useState({
+        name: "",
+        gender: "",
+        birthday: "",
+        nationality: "",
+    });
+
+    const SetUser = () => {
+        if(!!user) {
+            setUserInfo({
+                name: user.name,
+                gender: user.gender,
+                birthday: user.birthday,
+                nationality: user.nationality,
+            });
+        }
+    } 
+
+    useEffect(() => {
+        SetUser()
+    }, [user]);
+
+
+    const [phone, setPhone] = useState(
+        user?.phone || "",
+    );
+
+    const [email, setEmail] = useState(
+        user?.email || "",
+    );
+
+    const {
+        register,
+        handleSubmit,
+        setValue,
+    } = useForm({
+        defaultValues: {
+            name: userInfo?.name || "",
+            gender: userInfo?.gender || "",
+            birthday: userInfo?.birthday || date,
+            nationality: userInfo?.nationality || nations[0],
+        },
+        mode: 'onChange',
+    });
+
+    const[isHidden, setIsHidden] = useState("isHidden");
+
+    const showSuccess = () => {
+        setIsHidden("");
+        setTimeout(function () {
+            setIsHidden("isHidden")
+        }, 5000);
+    }
+
+    const onSubmit = async (values) => {
+        const { name, gender, nationality } = values;
+        const birthday = Date(date);
+
+        try {
+            const res = await request({
+                url: '/user/update-info',
+                method: 'put',
+                data: {
+                    name,
+                    birthday,
+                    gender,
+                    nationality,
+                }
+            })
+
+            if (res.success) {
+                setUserInfo({
+                    name,
+                    gender,
+                    birthday,
+                    nationality,
+                });
+                showSuccess();
+            }
+        } catch (err) {
+            alert(err.response.data.message);
+        }
+    };
+
+    const {
+        register: registerPhone,
+        handleSubmit: handleSubmitPhone,
+    } = useForm({
+        defaultValues: {
+            phone: phone,
+        },
+    });
+
+    const onSubmitPhone = async (values) => {
+        const { phone } = values;
+
+        try {
+            const res = await request({
+                url: '/user/update-phone',
+                method: 'put',
+                data: {
+                    phone,
+                }
+            })
+
+            if (res.success) {
+                setPhone({
+                    phone,
+                });
+                showSuccess();
+                disablePhone();
+            }
+        } catch (err) {
+            alert(err.response.data.message);
+        }
+    };
+
+    const {
+        register: registerEmail,
+        handleSubmit: handleSubmitEmail,
+    } = useForm({
+        defaultValues: {
+            email: email,
+        },
+    });
+
+    const onSubmitEmail = async (values) => {
+        const { email } = values;
+
+        try {
+            const res = await request({
+                url: '/user/update-email',
+                method: 'put',
+                data: {
+                    email,
+                }
+            })
+
+            if (res.success) {
+                setEmail({
+                    email,
+                });
+                showSuccess();
+                disableEmail();
+            }
+        } catch (err) {
+            alert(err.response.data.message);
+        }
+    };
 
     return (
         <div>
@@ -38,7 +205,9 @@ export default function Profile() {
                     </Col>
                     <Col lg={9} sm={12} xs={12}>
                         <h5>Thông tin tài khoản</h5>
-                        <form>
+                        <form
+                            onSubmit={handleSubmit(onSubmit)}
+                        >
                             <Row style={{width: "100%", backgroundColor: "#ffffff", padding: "16px 0", marginTop: "16px"}}>
                                 <Col md={8} sm={8} xs={12} style={{padding: "12px 16px"}}>
                                     <Row style={{alignItems: "center", width: "100%"}}>
@@ -54,7 +223,14 @@ export default function Profile() {
                                         <Col md={9} sm={8} xs={12} className="profile-name-col">
                                             <div className="profile-name">
                                                 <label style={{marginRight: "8px"}} className="profile-name-label">Họ & Tên:</label>
-                                                <input type="text" placeholder="Thêm họ tên" style={{width: "60%"}}></input>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Thêm họ tên"
+                                                    name="name"
+                                                    style={{width: "60%"}}
+                                                    onChange={e => console.log(e.target.value)}
+                                                    {...register('name')}
+                                                ></input>
                                             </div>
                                         </Col>
                                     </Row>
@@ -64,7 +240,12 @@ export default function Profile() {
                                             <label>Ngày sinh:</label>
                                         </Col>
                                         <Col md={9} sm={7} xs={12} style={{padding: "0 0 0 32px"}}>
-                                            <DatePicker onChange={setDate} value={date} clearIcon={null}format="dd/MM/yyyy"/>
+                                            <DatePicker 
+                                                onChange={setDate} 
+                                                value={date} 
+                                                clearIcon={null} 
+                                                format="dd/MM/yyyy"
+                                            />
                                         </Col>
                                     </Row>
 
@@ -73,15 +254,27 @@ export default function Profile() {
                                             <label>Giới tính:</label>
                                         </Col>
                                         <Col md={3} style={{padding: "0 0 0 32px"}}>
-                                            <input type="radio" name="gender"></input>
+                                            <input 
+                                                type="radio"
+                                                value="male"
+                                                {...register('gender')}
+                                            ></input>
                                             <label style={{marginLeft: "8px"}}>Nam</label>
                                         </Col>
                                         <Col md={3} style={{padding: "0 0 0 32px"}}>
-                                            <input type="radio" name="gender"></input>
+                                            <input 
+                                                type="radio"
+                                                value="female"
+                                                {...register('gender')}
+                                            ></input>
                                             <label style={{marginLeft: "8px"}}>Nữ</label>
                                         </Col>
                                         <Col md={3} style={{padding: "0 0 0 32px"}}>
-                                            <input type="radio" name="gender"></input>
+                                            <input 
+                                                type="radio"
+                                                value="other"
+                                                {...register('gender')}
+                                            ></input>
                                             <label style={{marginLeft: "8px"}}>Khác</label>
                                         </Col>
                                     </Row>
@@ -91,16 +284,26 @@ export default function Profile() {
                                             <label>Quốc tịch:</label>
                                         </Col>
                                         <Col md={9} style={{padding: "0 0 0 32px"}}>
-                                            <select style={{width: "90%"}} >
-                                                <option value="0">Chọn quốc tịch</option>
-                                                <option value="1">Việt Nam</option>
+                                            <select 
+                                                style={{width: "90%"}} 
+                                                {...register('nationality')}
+                                            >
+                                                {nations.map((el) => (
+                                                    <option 
+                                                        key={el}
+                                                        value={el}
+                                                    >{el}</option>
+                                                ))}
                                             </select>
                                         </Col>
                                     </Row>
 
                                     <Row style={{display: "flex", alignItems: "center", justifyContent: "center", width: "100%", marginTop: "32px"}}>
                                         <Col md={4} sm={6} xs={10}>
-                                            <Button variant="danger">Lưu thay đổi</Button>
+                                            <Button 
+                                                type="submit"
+                                                variant="danger"
+                                            >Lưu thay đổi</Button>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -111,15 +314,35 @@ export default function Profile() {
                                     </Row>
                                     <Row style={{width: "100%", alignItems: "center"}}>
                                         <Col md={2} sm={2} xs={2}>
-                                            <Telephone style={{fontSize: "1.25rem"}}/>
+                                            <Telephone style={{fontSize: "1.25rem", marginBottom: "10px"}}/>
                                         </Col>
-                                        <Col md={10} sm={10} xs={10}><p>Số điện thoại: <br></br>0123456789</p></Col>
+                                        <Col md={9} sm={9} xs={9}>
+                                            <p>Số điện thoại:</p>
+                                            <div onClick={enablePhone} onBlur={handleSubmitPhone(onSubmitPhone)}>
+                                                <input 
+                                                    type="text" 
+                                                    defaultValue={phone} 
+                                                    disabled={isDisabledPhone}
+                                                    {...registerPhone('phone')}
+                                                />
+                                            </div>
+                                        </Col>
                                     </Row>
                                     <Row style={{width: "100%", alignItems: "center"}}>
                                         <Col md={2} sm={2} xs={2}>
                                             <Envelope style={{fontSize: "1.25rem"}}/>
                                         </Col>
-                                        <Col md={10} sm={10} xs={10}><p>Địa chỉ mail: <br></br>gmail@gmail.com</p></Col>
+                                        <Col md={10} sm={10} xs={10}>
+                                            <p>Địa chỉ mail:</p>
+                                            <div onClick={enableEmail} onBlur={handleSubmitEmail(onSubmitEmail)}>
+                                                <input 
+                                                    type="text" 
+                                                    defaultValue={email}
+                                                    disabled={isDisabledEmail}
+                                                    {...registerEmail('email')}
+                                                />
+                                            </div>
+                                        </Col>
                                     </Row>
                                     <Row style={{width: "100%", marginTop: "32px"}}>
                                         <p style={{fontWeight: "bold"}}>Bảo mật:</p>
@@ -135,6 +358,11 @@ export default function Profile() {
                         </form>
                     </Col>
                 </Row>
+                
+                
+                <Alert variant="primary" className={isHidden} style={{position: "absolute", top: "10px", right: "0", width: "200px", padding: "8px 16px", zIndex: "9999"}}>
+                    Lưu thành công!
+                </Alert>
 
                 <Modal show={show} onHide={handleClose}>
                     <form>

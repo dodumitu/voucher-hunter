@@ -84,9 +84,19 @@ input:focus{
     border: 1px solid #64d488;
 }
 
+textarea:focus{
+    outline: none;
+    border: 1px solid #64d488;
+}
+
 input::placeholder{
     color: #bebebe;
 }
+
+input[type="text"]:disabled {
+    background: #ffffff;
+    border: none;
+  }
 
 select{
     border-radius: 4px;
@@ -143,4 +153,8 @@ select:focus{
         flex-direction: column;
         align-items: start;
     }
+}
+
+.isHidden{
+    display: none;
 }

@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import request from '../../api/request';
 import './detailItem.css'
 
-const productId = "636bda92dde4b45d0ce26b3e";
+const productId = "6377933f021e555f54c0aace";
 
 export default function DetailItem() {
     const [ quantity, setQuantity ] = useState(0)
@@ -32,11 +32,11 @@ export default function DetailItem() {
                 status: "loading",
             }));
 
-            const res = await request.get(`/product/${productId}`);
-            if(!!res) {
+            const res = await request.get(`/products/${productId}`);
+            if(res.success) {
                 setItem({
                     status: "success",
-                    data: res,
+                    data: res.data,
                 })
             } else {
                 setItem((preState) => ({

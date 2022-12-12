@@ -9,7 +9,7 @@ ins.interceptors.request.use(function (config) {
   const token = localStorage.getItem('token');
   if (!token) return config;
 
-  config.headers['authorization'] = token;
+  config.headers['authorization'] = 'Bearer ' + token;
   return config;
 
 }, function (error) {

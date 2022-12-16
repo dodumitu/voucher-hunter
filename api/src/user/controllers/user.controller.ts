@@ -30,7 +30,6 @@ import { Response } from 'express';
 import { User } from '../models/user.model';
 import { map, Observable, tap, from, of } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-
 @Controller('user')
 @ApiTags('user')
 export class UserController {
@@ -97,34 +96,11 @@ export class UserController {
 
   @UseGuards(AuthGuard())
   @Post('upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './profileimages',
-
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          return cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  uploadFile(@UploadedFile() Image, @Req() req): Observable<Object> {
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
     const user: User = req.user;
-    return from(
-      this.userService.updateOne(user.id, { profileImage: Image.filename }),
-    ).pipe(map((user: User) => ({ success: true, data: user })));
-  }
-  @Get('profile-image/:imagename')
-  findProfileImage(
-    @Param('imagename') imagename,
-    @Res() res,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-  ): Observable<Object> {
-    return of(res.sendFile(join(process.cwd(), '/profileimages/' + imagename)));
+    const id = user.id;
+
+    return this.userService.addAvatar(file, id);
   }
 }

@@ -10,6 +10,7 @@ import { UserRepository } from './repositories/user.repository';
 import { JwtStrategy } from './jwt.strategy';
 import { UserController } from './controllers/user.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AwsS3Module } from 'src/aws-s3/s3.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
+    AwsS3Module,
   ],
   controllers: [AuthController, UserController],
   providers: [UserService, AuthService, UserRepository, JwtStrategy],

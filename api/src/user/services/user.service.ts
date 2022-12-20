@@ -84,7 +84,7 @@ export class UserService {
     });
     if (checkPhone) {
       throw new HttpException(
-        'Không thể dùng số điện thoại này',
+        'Số điện thoại này đã được dùng',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } else {
@@ -109,7 +109,7 @@ export class UserService {
     if (checkEmail) {
       console.log(checkEmail);
       throw new HttpException(
-        'Không thể sử dụng email này',
+        'Email này đã được dùng',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } else {

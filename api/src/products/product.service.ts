@@ -71,29 +71,19 @@ export class ProductService {
   async getFilteredProducts(
     filterProductDTO: FilterProductDTO,
   ): Promise<Product[]> {
-    const { category, search, brand, expireDate } = filterProductDTO;
+    const { category, search } = filterProductDTO;
     let products = await this.getAllProducts();
 
     if (search) {
       products = products.filter(
         (product) =>
           product.title?.includes(search) ||
-          product.description?.includes(search) ||
-          product.brand?.includes(search) ||
-          product.category?.includes(search),
+          product.description?.includes(search),
       );
     }
 
     if (category) {
       products = products.filter((product) => product.category === category);
-    }
-    if (brand) {
-      products = products.filter((product) => product.brand === brand);
-    }
-    if (expireDate) {
-      products = products.filter(
-        (product) => product.expireDate === expireDate,
-      );
     }
 
     return products;

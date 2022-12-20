@@ -1,11 +1,4 @@
-import {
-  IsEmail,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-  IsPhoneNumber,
-} from 'class-validator';
+import { MaxLength, MinLength, IsPhoneNumber } from 'class-validator';
 
 export class UpdatePhoneDto {
   @MinLength(10)

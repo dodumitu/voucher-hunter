@@ -5,6 +5,7 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
   Req,
@@ -48,33 +49,30 @@ export class UserController {
   @UseGuards(AuthGuard())
   @Put('update-info')
   async updateInfo(@Req() req: any, @Body() updateUser: UpdateUserInfoDto) {
-    const { id, user } = req.user;
-    const updatedUser = await this.userService.updateInfo(id, updateUser);
+    const { id } = req.user;
     return {
       success: true,
-      data: updatedUser,
+      data: await this.userService.updateInfo(id, updateUser),
     };
   }
 
   @UseGuards(AuthGuard())
   @Put('update-email')
   async updateEmail(@Req() req: any, @Body() updateEmail: updateEmailDto) {
-    const { id, user } = req.user;
-    const updatedUser = await this.userService.updateEmail(id, updateEmail);
+    const { id } = req.user;
     return {
       success: true,
-      data: updatedUser,
+      data: await this.userService.updateEmail(id, updateEmail),
     };
   }
 
   @UseGuards(AuthGuard())
   @Put('update-phone')
   async updatePhone(@Req() req: any, @Body() updatePhone: UpdatePhoneDto) {
-    const { id, user } = req.user;
-    const updatedUser = await this.userService.updatePhone(id, updatePhone);
+    const { id } = req.user;
     return {
       success: true,
-      data: updatedUser,
+      data: await this.userService.updatePhone(id, updatePhone),
     };
   }
   @UseGuards(AuthGuard())
@@ -83,23 +81,18 @@ export class UserController {
     @Req() req: any,
     @Body() updatePassword: updatePasswordDto,
   ) {
-    const { id, user } = req.user;
-    const updatedUser = await this.userService.updatePassword(
-      id,
-      updatePassword,
-    );
+    const { id } = req.user;
     return {
       success: true,
-      data: updatedUser,
+      data: await this.userService.updatePassword(id, updatePassword),
     };
   }
 
   @UseGuards(AuthGuard())
-  @Post('upload')
+  @Put('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
-    const user: User = req.user;
-    const id = user.id;
+    const { id } = req.user;
 
     return this.userService.addAvatar(file, id);
   }

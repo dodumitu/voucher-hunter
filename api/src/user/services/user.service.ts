@@ -5,7 +5,6 @@ import {
   NotFoundException,
   Logger,
 } from '@nestjs/common';
-import { UserRepository } from '../repositories/user.repository';
 import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserInfoDto } from '../dto/updateUserInfoDto';
@@ -13,31 +12,32 @@ import { UpdatePhoneDto } from '../dto/update-phone.dto';
 import { updateEmailDto } from '../dto/update-email.dto';
 import { updatePasswordDto } from '../dto/update-password.dto';
 import { S3Service } from 'src/aws-s3/s3.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from '../models/user.model';
+import { Model } from 'mongoose';
+import { UploadPictureDto } from '../dto/upload-picture.dto';
+import { Not } from 'typeorm';
 @Injectable()
 export class UserService {
   constructor(
-    private readonly userRepository: UserRepository,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private s3Service: S3Service,
   ) {}
 
-  async create(userDto: CreateUserDto) {
+  async create(userDto: CreateUserDto): Promise<User> {
     userDto.password = await bcrypt.hash(userDto.password, 10);
 
     // check exists
-    const userInDb = await this.userRepository.findByCondition({
-      email: userDto.email,
-    });
+    const userInDb = await this.userModel.findOne({ email: userDto.email });
     if (userInDb) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
 
-    return await this.userRepository.create(userDto);
+    return await this.userModel.create(userDto);
   }
 
   async findByLogin({ email, password }: LoginUserDto) {
-    const user = await this.userRepository.findByCondition({
-      email: email,
-    });
+    const user = await this.userModel.findOne({ email: email });
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
@@ -53,22 +53,21 @@ export class UserService {
   }
 
   async findByEmail(email) {
-    return await this.userRepository.findByCondition({
+    return await this.userModel.findOne({
       email: email,
     });
   }
 
   async findById(id) {
-    return await this.userRepository.findByCondition({
+    return await this.userModel.findOne({
       _id: id,
     });
   }
 
-  async updateInfo(id: string, updateInfo: UpdateUserInfoDto) {
-    const updatedUser = await this.userRepository.findByIdAndUpdate(
-      { _id: id },
-      updateInfo,
-    );
+  async updateInfo(id: string, updateInfo: UpdateUserInfoDto): Promise<User> {
+    const updatedUser = await this.userModel.findByIdAndUpdate(id, updateInfo, {
+      new: true,
+    });
 
     if (!updatedUser) {
       throw new NotFoundException();
@@ -76,70 +75,64 @@ export class UserService {
     return updatedUser;
   }
 
-  async updateOne(id: string, data: any) {
-    // data.password = await bcrypt.hash(data.password, 10);
-    const updatedUser = await this.userRepository.findByIdAndUpdate(
-      { _id: id },
-      data,
-    );
+  async updatePhone(id: string, updatePhone: UpdatePhoneDto): Promise<User> {
+    const user = await this.userModel.findById(id);
 
-    if (!updatedUser) {
-      throw new NotFoundException();
-    }
-    return updatedUser;
-  }
-
-  async updatePhone(id: string, updatePhone: UpdatePhoneDto) {
-    const user = await this.userRepository.findByIdAndUpdate(
-      { _id: id },
-      updatePhone,
-    );
-
-    const checkPhone = await this.userRepository.findByCondition({
-      phone: user.phone,
+    const checkPhone = await this.userModel.findOne({
+      phone: updatePhone.phone,
+      id: { $ne: user.id },
     });
     if (checkPhone) {
       throw new HttpException(
-        `Error update phone ${user.phone} user`,
+        'Không thể dùng số điện thoại này',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    } else {
+      const updatedUser = await this.userModel.findByIdAndUpdate(
+        id,
+        updatePhone,
+        {
+          new: true,
+        },
+      );
+      return updatedUser;
     }
-    user.phone = updatePhone.phone;
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-    return user;
   }
 
-  async updateEmail(id: string, updateEmail: updateEmailDto) {
-    const user = await this.userRepository.findByIdAndUpdate(
-      { _id: id },
-      updateEmail,
-    );
+  async updateEmail(id: string, updateEmail: updateEmailDto): Promise<User> {
+    const user = await this.userModel.findById(id);
 
-    const checkPhone = await this.userRepository.findByCondition({
-      email: user.email,
+    const checkEmail = await this.userModel.findOne({
+      email: updateEmail.email,
+      id: { $ne: user.id },
     });
-    if (checkPhone) {
+    if (checkEmail) {
+      console.log(checkEmail);
       throw new HttpException(
-        `Error update phone ${user.email} user`,
+        'Không thể sử dụng email này',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    } else {
+      const updatedUser = await this.userModel.findByIdAndUpdate(
+        id,
+        updateEmail,
+        {
+          new: true,
+        },
+      );
+      return updatedUser;
     }
-    user.email = updateEmail.email;
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-    return user;
   }
 
-  async updatePassword(id: string, updatePassword: updatePasswordDto) {
+  async updatePassword(
+    id: string,
+    updatePassword: updatePasswordDto,
+  ): Promise<User> {
     updatePassword.password = await bcrypt.hash(updatePassword.password, 10);
-    const updatedUser = await this.userRepository.findByIdAndUpdate(
-      { _id: id },
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      id,
       updatePassword,
+      { new: true },
     );
 
     if (!updatedUser) {
@@ -147,21 +140,14 @@ export class UserService {
     }
     return updatedUser;
   }
-  async addAvatar(file: Express.Multer.File, id: string) {
-    const user = await this.userRepository.findByCondition({
+  async addAvatar(file: Express.Multer.File, id: string): Promise<User> {
+    const user = await this.userModel.findOne({
       _id: id,
     });
-
-    if (user.id !== id) {
-      throw new HttpException('You cannot update your profile picture!', 400);
-    }
     const bucketKey = `${file.fieldname}${Date.now()}`;
     const url = await this.s3Service.uploadFile(file, bucketKey);
 
-    const updatedUser = await this.userRepository.findByIdAndUpdate(
-      { _id: id },
-      { profileImage: url },
-    );
-    return updatedUser;
+    user.profileImage = url;
+    return user.save();
   }
 }

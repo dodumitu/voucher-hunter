@@ -20,13 +20,18 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('products')
 export class ProductController {
   constructor(private productService: ProductService) {}
+  // @Get('/')
+  // async getHomeProduct() {
+  //   const homeProduct = await this.productService.getHomeProduct();
+  //   return { homeProduct };
+  // }
   @Get('/')
   async getProducts(@Query() filterProductDTO: FilterProductDTO) {
     if (Object.keys(filterProductDTO).length) {
       const filteredProducts = await this.productService.getFilteredProducts(
         filterProductDTO,
       );
-      return { success: true, data: filteredProducts };
+      return { success: 1, filteredProducts };
     } else {
       const allProducts = await this.productService.getAllProducts();
       return { success: true, data: allProducts };
@@ -35,7 +40,7 @@ export class ProductController {
   @Get('/homeproduct')
   async getHome(@Req() request: Request) {
     const homeProduct = await this.productService.getHomeProduct();
-    return { success: true, data: homeProduct };
+    return { success: 1, data: homeProduct };
   }
 
   @Get('/:id')

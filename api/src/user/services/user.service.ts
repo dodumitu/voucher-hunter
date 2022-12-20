@@ -80,11 +80,11 @@ export class UserService {
 
     const checkPhone = await this.userModel.findOne({
       phone: updatePhone.phone,
-      id: { $ne: user.id },
+      _id: { $ne: user._id },
     });
     if (checkPhone) {
       throw new HttpException(
-        'Số điện thoại này đã được dùng',
+        'Bạn không thể dùng số điện thoại này! Hãy thử bằng số điện thoại khác!',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } else {
@@ -104,12 +104,11 @@ export class UserService {
 
     const checkEmail = await this.userModel.findOne({
       email: updateEmail.email,
-      id: { $ne: user.id },
+      _id: { $ne: user._id },
     });
     if (checkEmail) {
-      console.log(checkEmail);
       throw new HttpException(
-        'Email này đã được dùng',
+        'Bạn không thể dùng email này! Hãy thử bằng email khác!',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } else {

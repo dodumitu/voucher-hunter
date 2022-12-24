@@ -1,7 +1,7 @@
 export class UpdateUserInfoDto {
   name: string;
   nickname: string;
-  birthday: string;
+  birthday: Date;
   gender: string;
   nationality: string;
 }

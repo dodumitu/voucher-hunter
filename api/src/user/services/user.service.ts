@@ -3,7 +3,6 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
-  Logger,
 } from '@nestjs/common';
 import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
@@ -15,8 +14,6 @@ import { S3Service } from 'src/aws-s3/s3.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../models/user.model';
 import { Model } from 'mongoose';
-import { UploadPictureDto } from '../dto/upload-picture.dto';
-import { Not } from 'typeorm';
 @Injectable()
 export class UserService {
   constructor(

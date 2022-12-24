@@ -15,7 +15,7 @@ export class User {
   nationality: string;
 
   @Prop()
-  birthday: string;
+  birthday: Date;
 
   @Prop()
   gender: string;

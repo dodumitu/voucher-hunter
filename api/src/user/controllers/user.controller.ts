@@ -2,35 +2,47 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   HttpStatus,
-  NotFoundException,
-  Param,
-  Patch,
-  Post,
   Put,
   Req,
-  Res,
-  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
-import { diskStorage } from 'multer';
-import path, { extname, join } from 'path';
 import { ApiTags } from '@nestjs/swagger';
+import { extname } from 'path';
 import { ResponseData } from 'src/common/response/ResponseData';
 import { updateEmailDto } from '../dto/update-email.dto';
 import { updatePasswordDto } from '../dto/update-password.dto';
 import { UpdatePhoneDto } from '../dto/update-phone.dto';
 import { UpdateUserInfoDto } from '../dto/updateUserInfoDto';
 import { UserService } from '../services/user.service';
-import { createReadStream } from 'fs';
-import { Response } from 'express';
-import { User } from '../models/user.model';
-import { map, Observable, tap, from, of } from 'rxjs';
-import { v4 as uuidv4 } from 'uuid';
+
+export const multerOptions = {
+  // Enable file size limits
+  limits: {
+    fileSize: 200000,
+  },
+  // Check the mimetypes to allow for upload
+  fileFilter: (req: any, file: any, cb: any) => {
+    if (file.mimetype.match(/\/(jpg|jpeg|png|)$/)) {
+      // Allow storage of file
+      cb(null, true);
+    } else {
+      // Reject file
+      cb(
+        new HttpException(
+          `Unsupported file type ${extname(file.originalname)}`,
+          HttpStatus.BAD_REQUEST,
+        ),
+        false,
+      );
+    }
+  },
+};
 @Controller('user')
 @ApiTags('user')
 export class UserController {
@@ -90,7 +102,7 @@ export class UserController {
 
   @UseGuards(AuthGuard())
   @Put('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
     const { id } = req.user;
 

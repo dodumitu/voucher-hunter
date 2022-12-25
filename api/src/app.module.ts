@@ -11,6 +11,7 @@ import { AwsS3Module } from './aws-s3/s3.module';
 
 // import { HomeModule } from './home/home.module';
 // import { HomeService } from './home/home.service';
+import { UploadModule } from './upload/upload.module';
 @Module({
   imports: [
     ProductModule,
@@ -29,6 +30,7 @@ import { AwsS3Module } from './aws-s3/s3.module';
       useFindAndModify: false,
       useCreateIndex: true,
     }),
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

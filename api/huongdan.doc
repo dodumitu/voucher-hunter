@@ -5,10 +5,34 @@ API list: http://localhost:5400/api
 
 @get: http://localhost:5400/products/"id của product" : lấy ra 1 product cụ thể
 
-@get: http://localhost:5400/products?search= "keywords tìm kiếm" : tìm kiếm bằng keywords
+@get: http://localhost:5400/products?search="keywords tìm kiếm" : tìm kiếm bằng keywords
 
-@get: http://localhost:5400/products?category= "category sản phẩm": lọc theo danh mục
+@get: http://localhost:5400/products?category="category sản phẩm": lọc theo danh mục
 
+@get: http://localhost:5400/products?brand="brand sản phẩm": lọc theo brand
+
+*ADMIN
+@get: http://localhost:5400/products/admin : get tất cả sản phẩm
+
+@get: http://localhost:5400/products/admin?search="keywords tìm kiếm" : tìm kiếm bằng keywords
+
+@get: http://localhost:5400/products/admin?category="category sản phẩm": lọc theo danh mục
+
+@get: http://localhost:5400/products/admin?brand="brand sản phẩm": lọc theo brand
+
+
+*SELLER
+@get: http://localhost:5400/products/seller : get tất cả sản phẩm theo seller đã login
+
+@get: http://localhost:5400/products/seller?search="keywords tìm kiếm" : tìm kiếm bằng keywords
+
+@get: http://localhost:5400/products/seller?category="category sản phẩm": lọc theo danh mục
+
+@get: http://localhost:5400/products/seller?brand="brand sản phẩm": lọc theo brand
+
+
+@post: http://localhost:5400/products/post: đăng sản phẩm mới, yêu cầu đăng nhập vào truyền token authen
+khi đăng sẽ tự động thêm id đã đăng nhập vào author trong schema product
 
 login/register
 

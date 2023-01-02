@@ -31,6 +31,14 @@ export class User {
 
   @Prop()
   profileImage: string;
+
+  @Prop()
+  roles: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+export interface User extends Document {
+  name: string;
+  email: string;
+  password: string;
+}

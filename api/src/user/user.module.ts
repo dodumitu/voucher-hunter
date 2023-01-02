@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './models/user.model';
 import { PassportModule } from '@nestjs/passport';
@@ -10,9 +10,11 @@ import { JwtStrategy } from './jwt.strategy';
 import { UserController } from './controllers/user.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AwsS3Module } from 'src/aws-s3/s3.module';
+import { ProductModule } from 'src/products/product.module';
 
 @Module({
   imports: [
+    forwardRef(() => ProductModule),
     MongooseModule.forFeature([
       {
         name: 'User',

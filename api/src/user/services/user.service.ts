@@ -1,6 +1,8 @@
 import {
+  forwardRef,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,11 +16,14 @@ import { S3Service } from 'src/aws-s3/s3.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../models/user.model';
 import { Model } from 'mongoose';
+import { ProductService } from 'src/products/product.service';
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private s3Service: S3Service,
+    @Inject(forwardRef(() => ProductService))
+    private productService: ProductService,
   ) {}
 
   async create(userDto: CreateUserDto): Promise<User> {
@@ -32,7 +37,12 @@ export class UserService {
 
     return await this.userModel.create(userDto);
   }
-
+  async getUser(id) {
+    const user = await this.userModel.findOne({
+      _id: id,
+    });
+    const products = (await this.productService.findAllByAuthorId(id)) || [];
+  }
   async findByLogin({ email, password }: LoginUserDto) {
     const user = await this.userModel.findOne({ email: email });
 

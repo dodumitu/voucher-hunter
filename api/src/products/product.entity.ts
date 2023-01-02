@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { User } from 'src/user/models/user.model';
 
 export type ProductDocument = Product & Document;
 
@@ -12,7 +13,7 @@ export class Product {
   description: string;
 
   @Prop()
-  expireDate: string;
+  expireDate: Date;
 
   @Prop()
   title: string;
@@ -31,6 +32,9 @@ export class Product {
 
   @Prop()
   category: string;
+
+  @Prop()
+  authorId: User;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

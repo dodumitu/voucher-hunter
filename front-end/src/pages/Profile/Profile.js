@@ -12,8 +12,6 @@ import './profile.css';
 const nations = ["Chọn quốc tịch", "Việt Nam", "Ả Rập Xê Út", "Afghanistan", "Ai Cập", "Albania", "Algeria", "Ấn Độ", "Andorra", "Angola", "Anh", "Antigua và Barbuda", "Áo", "Argentina", "Armenia", "Azerbaijan", "Ba Lan", "Bắc Macedonia", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belize", "Bénin", "Bhutan", "Bỉ", "Bờ Biển Ngà", "Bồ Đào Nha", "Bolivia", "Bosnia và Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Các tiểu vương quốc Ả Rập Thống nhất", "Cameroon", "Campuchia", "Canada", "Cape Verde", "Chad", "Chile", "Colombia", "Comoros", "Cộng hòa Congo", "Cộng hòa dân chủ Congo", "Cộng hòa Dominican", "Cộng hòa Séc", "Cộng hòa Trung Phi", "Costa Rica", "Croatia", "Cuba", "Djibouti", "Dominica", "Đài Loan", "Đan Mạch", "Đông Timor", "Đức", "Ecuador", "El Salvador", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Gabon", "Gambia", "Georgia", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea Xích đạo", "Guinea-Bissau", "Guyana", "Hà Lan", "Haiti", "Hàn Quốc", "Hoa Kỳ", "Honduras", "Hungary", "Hy Lạp", "Iceland", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Jamaica", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Lào", "Latvia", "Lesotho", "Liban", "Liberia", "Libya", "Liechtenstein", "Liên bang Micronesia", "Lithuania", "Luxembourg", "Ma-rốc", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Mauritania", "Mauritius", "Mexico", "Moldova", "Monaco", "Mông Cổ", "Montenegro", "Mozambique", "Myanmar", "Na Uy", "Nam Phi", "Nam Sudan", "Namibia", "Nauru", "Nepal", "reNew Zealand", "Nga", "Nhật Bản", "Nicaragua", "Niger", "Nigeria", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Phần Lan", "Pháp", "Philippines", "Qatar", "Quần đảo Marshall", "Quần đảo Solomon", "Romania", "Rwanda", "Saint Kitts và Nevis", "Saint Lucia", "Saint Vincent và Grenadines", "Samoa", "San Marino", "São Tomé và Príncipe", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Síp", "Slovakia", "Slovenia", "Somalia", "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Syria", "Tajikistan", "Tanzania", "Tây Ban Nha", "Thái Lan", "Thành Vatican", "Thổ Nhĩ Kỳ", "Thụy Điển", "Thụy Sĩ", "Togo", "Tonga", "Triều Tiên", "Trinidad và Tobago", "Trung Quốc", "Tunisia", "Turkmenistan", "Tuvalu", "Úc", "Uganda", "Ukraine", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Ý", "Yemen", "Zambia", "Zimbabwe",]
 
 export default function Profile() {
-    const [src, setSrc] = useState();
-
     const [date, setDate] = useState(new Date());
 
     const [show, setShow] = useState(false);
@@ -31,52 +29,37 @@ export default function Profile() {
     const enableEmail = () => setDisabledEmail(false);
     const disableEmail = () => setDisabledEmail(true);
 
+    const [ disabled, setDisabled ] = useState(true);
+    const [ src, setSrc ] = useState();
+
     const { user } = useAuth();
-
-    const [userInfo, setUserInfo] = useState({
-        name: "",
-        gender: "",
-        birthday: "",
-        nationality: "",
-    });
-
-    const SetUser = () => {
-        if(!!user) {
-            setUserInfo({
-                name: user.name,
-                gender: user.gender,
-                birthday: user.birthday,
-                nationality: user.nationality,
-            });
-        }
-    } 
-
-    useEffect(() => {
-        SetUser()
-    }, [user]);
-
-
-    const [phone, setPhone] = useState(
-        user?.phone || "",
-    );
-
-    const [email, setEmail] = useState(
-        user?.email || "",
-    );
-
+    
     const {
         register,
         handleSubmit,
         setValue,
+        watch,
     } = useForm({
         defaultValues: {
-            name: userInfo?.name || "",
-            gender: userInfo?.gender || "",
-            birthday: userInfo?.birthday || date,
-            nationality: userInfo?.nationality || nations[0],
+            name: "",
+            gender: "",
+            nationality: "",
         },
         mode: 'onChange',
     });
+
+
+    useEffect(() => {
+        if(!!user) {
+            setSrc(user.profileImage);
+            setValue('name', user.name);
+            setValue('gender', user.gender);
+            setValue('nationality', user.nationality || "Chọn quốc tịch");
+            setValuePhone('phone', user.phone);
+            setValueEmail('email', user.email);
+            setDate(user.birthday);
+        }
+    }, [user]);
 
     const[isHidden, setIsHidden] = useState("isHidden");
 
@@ -88,8 +71,8 @@ export default function Profile() {
     }
 
     const onSubmit = async (values) => {
-        const { name, gender, nationality } = values;
-        const birthday = Date(date);
+        const { imgUrl, name, gender, nationality } = values;
+        console.log(values);
 
         try {
             const res = await request({
@@ -97,19 +80,14 @@ export default function Profile() {
                 method: 'put',
                 data: {
                     name,
-                    birthday,
+                    birthday: date,
                     gender,
                     nationality,
+                    profileImage: imgUrl,
                 }
             })
 
             if (res.success) {
-                setUserInfo({
-                    name,
-                    gender,
-                    birthday,
-                    nationality,
-                });
                 showSuccess();
             }
         } catch (err) {
@@ -120,9 +98,10 @@ export default function Profile() {
     const {
         register: registerPhone,
         handleSubmit: handleSubmitPhone,
+        setValue: setValuePhone,
     } = useForm({
         defaultValues: {
-            phone: phone,
+            phone: "",
         },
     });
 
@@ -139,9 +118,6 @@ export default function Profile() {
             })
 
             if (res.success) {
-                setPhone({
-                    phone,
-                });
                 showSuccess();
                 disablePhone();
             }
@@ -153,9 +129,10 @@ export default function Profile() {
     const {
         register: registerEmail,
         handleSubmit: handleSubmitEmail,
+        setValue: setValueEmail,
     } = useForm({
         defaultValues: {
-            email: email,
+            email: "",
         },
     });
 
@@ -172,9 +149,6 @@ export default function Profile() {
             })
 
             if (res.success) {
-                setEmail({
-                    email,
-                });
                 showSuccess();
                 disableEmail();
             }
@@ -182,6 +156,94 @@ export default function Profile() {
             alert(err.response.data.message);
         }
     };
+
+    const {
+        register: registerNewPassword,
+        handleSubmit: handleSubmitNewPassword,
+        resetField,
+        getValues,
+        formState: { errors },
+    } = useForm({
+        defaultValues: {
+            oldpassword: "",
+            newpassword: "",
+            confirmnewpassword: "",
+
+        },
+    });
+
+    const onSubmitNewPassword = async (values) => {
+        const { newpassword } = values;
+
+        try {
+            const res = await request({
+                url: '/user/update-password',
+                method: 'put',
+                data: {
+                    password: newpassword,
+                }
+            })
+
+            if (res.success) {
+                showSuccess();
+                handleClose();
+            }
+        } catch (err) {
+            resetField();
+            alert(err.response.data.message);
+        }
+    };
+
+    const uploadFile = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+    
+        try {
+            const res = await request({
+                url: '/upload',
+                method: 'POST',
+                data: formData,
+            });
+            return res.url;
+        } catch (err) {
+            return '';
+        }
+    }
+
+    const onChangeFile = async e => {
+        const files = e.target.files;
+        console.log(files);
+        if (files.length) {
+            const imgUrl = await uploadFile(files[0]);
+            setValue('imgUrl', imgUrl);
+            setSrc(imgUrl);
+            imgUrl ? setDisabled(false) : setDisabled(true);
+        }
+    };
+
+    const [watchName, watchGender, watchNationality, watchPhone, watchEmail] = watch(['name', 'gender', 'nationality', 'phone', 'email']);
+    // const [watchPhone] = handleWatchPhone('phone');
+    // const [watchEmail] = handleWatchPhone('email');
+
+    useEffect(() => {
+        setValue('name', watchName);
+    }, [watchName]);
+
+    useEffect(() => {
+        setValue('gender', watchGender);
+    }, [watchGender]);
+
+    useEffect(() => {
+        setValue('nationality', watchNationality);
+    }, [watchNationality]);
+
+    useEffect(() => {
+        setValuePhone('phone', watchPhone);
+    }, [watchPhone]);
+
+    useEffect(() => {
+        setValueEmail('email', watchEmail);
+    }, [watchEmail]);
 
     return (
         <div>
@@ -214,10 +276,14 @@ export default function Profile() {
                                         <Col md={3} sm={4} xs={12}>
                                             <label htmlFor="photo-upload" className="custom-file-upload">
                                                 <div className="img-wrap img-upload" >
-                                                    <img htmlFor="photo-upload" src={src} alt={src}/>
+                                                    <img htmlFor="photo-upload" className="profile-img-upload" src={src} alt={src}/>
                                                 </div>
                                                 <Camera className="photo-upload-icon"/>
-                                                <input id="photo-upload" type="file" /> 
+                                                <input 
+                                                    id="photo-upload" 
+                                                    type="file"
+                                                    onChange={onChangeFile}
+                                                /> 
                                             </label>
                                         </Col>
                                         <Col md={9} sm={8} xs={12} className="profile-name-col">
@@ -228,7 +294,6 @@ export default function Profile() {
                                                     placeholder="Thêm họ tên"
                                                     name="name"
                                                     style={{width: "60%"}}
-                                                    onChange={e => console.log(e.target.value)}
                                                     {...register('name')}
                                                 ></input>
                                             </div>
@@ -240,11 +305,12 @@ export default function Profile() {
                                             <label>Ngày sinh:</label>
                                         </Col>
                                         <Col md={9} sm={7} xs={12} style={{padding: "0 0 0 32px"}}>
-                                            <DatePicker 
-                                                onChange={setDate} 
-                                                value={date} 
+                                            <DatePicker
+                                                name="birthday"
                                                 clearIcon={null} 
                                                 format="dd/MM/yyyy"
+                                                value={date}
+                                                onChange={setDate}
                                             />
                                         </Col>
                                     </Row>
@@ -285,7 +351,7 @@ export default function Profile() {
                                         </Col>
                                         <Col md={9} style={{padding: "0 0 0 32px"}}>
                                             <select 
-                                                style={{width: "90%"}} 
+                                                style={{width: "90%"}}
                                                 {...register('nationality')}
                                             >
                                                 {nations.map((el) => (
@@ -303,6 +369,7 @@ export default function Profile() {
                                             <Button 
                                                 type="submit"
                                                 variant="danger"
+                                                disabled={disabled}
                                             >Lưu thay đổi</Button>
                                         </Col>
                                     </Row>
@@ -320,8 +387,7 @@ export default function Profile() {
                                             <p>Số điện thoại:</p>
                                             <div onClick={enablePhone} onBlur={handleSubmitPhone(onSubmitPhone)}>
                                                 <input 
-                                                    type="text" 
-                                                    defaultValue={phone} 
+                                                    type="text"
                                                     disabled={isDisabledPhone}
                                                     {...registerPhone('phone')}
                                                 />
@@ -336,8 +402,7 @@ export default function Profile() {
                                             <p>Địa chỉ mail:</p>
                                             <div onClick={enableEmail} onBlur={handleSubmitEmail(onSubmitEmail)}>
                                                 <input 
-                                                    type="text" 
-                                                    defaultValue={email}
+                                                    type="text"
                                                     disabled={isDisabledEmail}
                                                     {...registerEmail('email')}
                                                 />
@@ -365,29 +430,53 @@ export default function Profile() {
                 </Alert>
 
                 <Modal show={show} onHide={handleClose}>
-                    <form>
+                    <form onSubmit={handleSubmitNewPassword(onSubmitNewPassword)}>
                         <Modal.Header closeButton>
                             <Modal.Title>Đổi mật khẩu</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 16px"}}>
                                 <label>Mật khẩu cũ:</label>
-                                <input type="password" placeholder="Mật khẩu cũ" style={{width: "60%"}}></input>
+                                <input 
+                                    type="password"
+                                    placeholder="Mật khẩu cũ" 
+                                    style={{width: "60%"}}
+                                    {...registerNewPassword('oldpassword')}
+                                ></input>
                             </div>
                             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 16px"}}>
                                 <label>Mật khẩu mới:</label>
-                                <input type="password" placeholder="Mật khẩu mới" style={{width: "60%"}}></input>
+                                <input 
+                                    type="password" 
+                                    placeholder="Mật khẩu mới" 
+                                    style={{width: "60%"}}
+                                    {...registerNewPassword('newpassword', {
+                                        minLength: 8
+                                    })}
+                                ></input>
                             </div>
+                            {errors?.newpassword?.type === 'minLength' && <p role="alert" style={{margin: "0 0 0 40%", color: "red"}}>Password ít nhất 8 ký tự</p>}
                             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 16px"}}>
                                 <label>Nhập lại mật khẩu mới:</label>
-                                <input type="password" placeholder="Nhập lại mật khẩu mới" style={{width: "60%"}}></input>
+                                <input
+                                    type="password" 
+                                    placeholder="Nhập lại mật khẩu mới" 
+                                    style={{width: "60%"}}
+                                    {...registerNewPassword('confirmnewpassword', {
+                                        validate: () => {
+                                            return getValues('newpassword') === getValues('confirmnewpassword')
+                                        }
+                                    })}
+                                ></input>
+                                
                             </div>
+                            {errors?.confirmnewpassword?.type === 'validate' && <p role="alert" style={{margin: "0 0 0 40%", color: "red"}}>Password không khớp</p>}
                         </Modal.Body>
                         <Modal.Footer>
                             <Button variant="secondary" onClick={handleClose}>
                                 Đóng
                             </Button>
-                            <Button variant="primary" onClick={handleClose}>
+                            <Button type="submit" variant="primary">
                                 Lưu thay đổi
                             </Button>
                         </Modal.Footer>

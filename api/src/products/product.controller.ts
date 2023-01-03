@@ -13,10 +13,9 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ProductService } from './product.service';
-import { CreateProductDto } from './product.dto';
+import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { FilterProductDTO } from './product.filter.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { PaginationParams } from 'src/paginationParams';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Roles } from 'src/user/roles/roles.decorator';
 import { Role } from 'src/user/roles/role.enum';
 import { AuthGuard } from '@nestjs/passport';
@@ -26,6 +25,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class ProductController {
   constructor(private productService: ProductService) {}
   @Get('/')
+  @ApiOperation({ summary: 'get all products by client' })
   async getProducts(
     @Query()
     filterProductDTO: FilterProductDTO,
@@ -42,6 +42,7 @@ export class ProductController {
   }
 
   @Get('/admin')
+  @ApiOperation({ summary: 'get all products by admin' })
   @UseGuards(AuthGuard())
   @Roles(Role.Admin, Role.Seller)
   async getAdminProducts(
@@ -60,6 +61,7 @@ export class ProductController {
   }
 
   @Get('/seller')
+  @ApiOperation({ summary: 'get all products by seller' })
   @UseGuards(AuthGuard())
   @Roles(Role.Seller)
   async getSellerProducts(
@@ -96,6 +98,7 @@ export class ProductController {
   }
 
   @Post('/post/')
+  @ApiOperation({ summary: 'create a products by logged in user' })
   @UseGuards(AuthGuard())
   @Roles(Role.Admin, Role.Seller)
   async addProduct(
@@ -112,21 +115,23 @@ export class ProductController {
   }
 
   @Put('/update/:id')
+  @ApiOperation({ summary: 'update a product' })
   @UseGuards(AuthGuard())
   @Roles(Role.Admin, Role.Seller)
   async updateProduct(
     @Param('id') id: string,
-    @Body() createProductDTO: CreateProductDto,
+    @Body() updateProductDTO: UpdateProductDto,
   ) {
     const product = await this.productService.updateProduct(
       id,
-      createProductDTO,
+      updateProductDTO,
     );
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
     return { success: true, data: product };
   }
 
   @Delete('/delete/:id')
+  @ApiOperation({ summary: 'delete a products' })
   @UseGuards(AuthGuard())
   @Roles(Role.Admin, Role.Seller)
   async deleteProduct(@Param('id') id: string) {

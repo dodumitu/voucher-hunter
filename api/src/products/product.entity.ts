@@ -10,6 +10,12 @@ export class Product {
   brand: string;
 
   @Prop()
+  brandIcon: string;
+
+  @Prop()
+  productImage: string[];
+
+  @Prop()
   description: string;
 
   @Prop()
@@ -28,7 +34,16 @@ export class Product {
   price: number;
 
   @Prop()
-  discountDetails: string;
+  uses: string;
+
+  @Prop()
+  userManual: string;
+
+  @Prop()
+  policies: string;
+
+  @Prop()
+  conditions: string;
 
   @Prop()
   category: string;

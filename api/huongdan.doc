@@ -5,7 +5,7 @@ API list: http://localhost:5400/api
 
 @get: http://localhost:5400/products/"id của product" : lấy ra 1 product cụ thể
 
-@get: http://localhost:5400/products?search="keywords tìm kiếm" : tìm kiếm bằng keywords
+@get: http://localhost:5400/products?search=(keywords tìm kiếm)page=(số trang) : tìm kiếm bằng keywords
 
 @get: http://localhost:5400/products?category="category sản phẩm": lọc theo danh mục
 

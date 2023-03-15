@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './product.entity';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { FilterProductDTO } from './product.filter.dto';
 import { softDeletePlugin, SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { User } from 'src/user/models/user.model';
+import { int } from 'aws-sdk/clients/datapipeline';
+import { Query } from 'express-serve-static-core';
 
 @Injectable()
 export class ProductService {
@@ -35,9 +37,11 @@ export class ProductService {
     };
   }
 
-  async getAllProducts(): Promise<Product[]> {
-    const products = await this.productModel.find().exec();
-
+  async getAllProducts(query: Query): Promise<Product[]> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+    const products = this.productModel.find().limit(resPerPage).skip(skip);
     return products;
   }
 
@@ -56,7 +60,8 @@ export class ProductService {
   }
 
   async findAllByAuthorId(authorId): Promise<Product[]> {
-    const product = await this.getAllProducts();
+    const product = await this.productModel.find();
+
     return product.filter((product) => product.authorId === authorId);
   }
 
@@ -81,9 +86,13 @@ export class ProductService {
 
   async getFilteredProducts(
     filterProductDTO: FilterProductDTO,
+    query: Query,
   ): Promise<Product[]> {
-    const { category, search, brand, price } = filterProductDTO;
-    let products = await this.getAllProducts();
+    const { brand, price, search, category, expireDate } = filterProductDTO;
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+    let products = await this.productModel.find().limit(resPerPage).skip(skip);
 
     if (search) {
       products = products.filter(
@@ -102,6 +111,9 @@ export class ProductService {
     }
     if (price) {
       products = products.filter((product) => product.price <= price);
+    }
+    if (expireDate) {
+      products = products.filter((product) => product.expireDate <= expireDate);
     }
 
     return products;
@@ -112,10 +124,10 @@ export class ProductService {
     filterProductDTO: FilterProductDTO,
   ): Promise<Product[]> {
     const { category, search, brand, price } = filterProductDTO;
-    let products = await this.findAllByAuthorId(user.id);
+    let seller = await this.findAllByAuthorId(user.id);
 
     if (search) {
-      products = products.filter(
+      seller = seller.filter(
         (product) =>
           product.title?.includes(search) ||
           product.description?.includes(search) ||
@@ -124,15 +136,15 @@ export class ProductService {
       );
     }
     if (category) {
-      products = products.filter((product) => product.category === category);
+      seller = seller.filter((product) => product.category === category);
     }
     if (brand) {
-      products = products.filter((product) => product.brand === brand);
+      seller = seller.filter((product) => product.brand === brand);
     }
     if (price) {
-      products = products.filter((product) => product.price <= price);
+      seller = seller.filter((product) => product.price <= price);
     }
 
-    return products;
+    return seller;
   }
 }

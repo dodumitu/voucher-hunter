@@ -40,10 +40,7 @@ export class Product {
   userManual: string;
 
   @Prop()
-  policies: string;
-
-  @Prop()
-  conditions: string;
+  policiesAndconditions: string;
 
   @Prop()
   category: string;

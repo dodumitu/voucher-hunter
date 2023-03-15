@@ -17,6 +17,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../models/user.model';
 import { Model } from 'mongoose';
 import { ProductService } from 'src/products/product.service';
+import { Query } from 'express-serve-static-core';
 @Injectable()
 export class UserService {
   constructor(
@@ -41,7 +42,9 @@ export class UserService {
     const user = await this.userModel.findOne({
       _id: id,
     });
-    const products = (await this.productService.findAllByAuthorId(id)) || [];
+    const products =
+      (await this.productService.findAllByAuthorId(user.id)) || [];
+    return products;
   }
   async findByLogin({ email, password }: LoginUserDto) {
     const user = await this.userModel.findOne({ email: email });

@@ -11,6 +11,10 @@ import Profile from './pages/Profile/Profile';
 import AdminListItems from './pages/AdminItem/AdminListItems';
 import AdminAddItem from './pages/AdminAddItem/AdminAddItem';
 import AdminUpdateItem from './pages/AdminUpdateItem/AdminUpdateItem';
+import AdminNews from './pages/AdminNews/AdminNews';
+import AdminAddNews from './pages/AdminAddNews/AdminAddNews';
+import News from './pages/News/News';
+import DetailNews from './pages/DetailNews/DetailNews';
 
 export const AuthContext = createContext();
 
@@ -65,6 +69,10 @@ function App() {
           <Route path="admin/items" element={<AdminListItems />} />
           <Route path="admin/add-item" element={<AdminAddItem />} />
           <Route path="admin/update-item" element={<AdminUpdateItem />} />
+          <Route path="admin/news" element={<AdminNews />} />
+          <Route path="admin/add-news" element={<AdminAddNews />} />
+          <Route path="news" element={<News />} />
+          <Route path="detailnews" element={<DetailNews />} />
           <Route path="*" element={<div>404 Page</div>} />
         </Routes>
       </AuthContext.Provider>

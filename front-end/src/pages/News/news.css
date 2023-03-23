@@ -1,0 +1,7 @@
+.news-detail-link {
+    color: black;
+}
+
+.news-detail-link:hover {
+    color: #0000FF;
+}

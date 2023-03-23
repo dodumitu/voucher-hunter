@@ -1,0 +1,14 @@
+.admin-list-news-img {
+    width: 100px;
+    height: auto;
+}
+
+.admin-news-list-query {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.admin-news-list-label {
+    margin-right: 8px;
+}

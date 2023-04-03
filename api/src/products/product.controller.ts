@@ -21,6 +21,7 @@ import { Role } from 'src/user/roles/role.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { PaginationParams } from 'src/helper/paginationParams';
 import { Query as ExpressQuery } from 'express-serve-static-core';
+import { Product } from './product.entity';
 
 @Controller('products')
 @ApiTags('products')
@@ -28,22 +29,14 @@ export class ProductController {
   constructor(private productService: ProductService) {}
   @Get('/')
   @ApiOperation({ summary: 'get all products by client' })
-  async getProducts(
-    @Query() filterProductDTO: FilterProductDTO,
-    @Query() query: ExpressQuery,
-  ) {
-    if (Object.keys(filterProductDTO).length) {
-      const filteredProducts = await this.productService.getFilteredProducts(
-        filterProductDTO,
-        query,
-      );
-      return { success: true, filteredProducts };
-    }
-    // else {
-    //   const allProducts = await this.productService.getAllProducts(page);
-    //   return { success: true, data: allProducts };
-    // }
+  async getProducts(@Query() query: ExpressQuery): Promise<Product[]> {
+    return this.productService.getAllProducts(query);
   }
+  // else {
+  //   const allProducts = await this.productService.getAllProducts(page);
+  //   return { success: true, data: allProducts };
+  // }
+  // }
   // @Get('/all')
   // async getAllProducts(@Query() page) {
   //   return await this.productService.getAllProducts(page);
@@ -57,42 +50,20 @@ export class ProductController {
     @Query() query: ExpressQuery,
   ) {
     if (Object.keys(filterProductDTO).length) {
-      const filteredProducts = await this.productService.getFilteredProducts(
-        filterProductDTO,
-        query,
-      );
+      const filteredProducts = await this.productService.getAllProducts(query);
       return { success: true, filteredProducts };
     } else {
       const allProducts = await this.productService.getAllProducts(query);
       return { success: true, data: allProducts };
     }
   }
-
   @Get('/seller')
   @ApiOperation({ summary: 'get all products by seller' })
   @UseGuards(AuthGuard())
   @Roles(Role.Seller)
-  async getSellerProducts(
-    @Req() req: any,
-    @Query() filterProductDTO: FilterProductDTO,
-    // @Query() query: ExpressQuery,
-  ) {
+  async getSellerProducts(@Req() req: any, @Query() query: ExpressQuery) {
     const authorId = req.user.id;
-    if (Object.keys(filterProductDTO).length) {
-      const filteredProducts =
-        await this.productService.getSellerFilteredProducts(
-          authorId,
-          filterProductDTO,
-          // query,
-        );
-      return { success: true, filteredProducts };
-    } else {
-      const allProducts = await this.productService.findAllByAuthorId(
-        authorId,
-        // query,
-      );
-      return { success: true, data: allProducts };
-    }
+    return this.productService.getSellerFilteredProducts(authorId, query);
   }
   @Get('/homeproduct')
   @UseGuards(AuthGuard())

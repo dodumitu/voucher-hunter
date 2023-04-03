@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { isValidObjectId, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './product.entity';
@@ -8,12 +8,13 @@ import { softDeletePlugin, SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { User } from 'src/user/models/user.model';
 import { int } from 'aws-sdk/clients/datapipeline';
 import { Query } from 'express-serve-static-core';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name)
-    private readonly productModel: SoftDeleteModel<ProductDocument>,
+    private productModel: mongoose.Model<Product>,
   ) {}
 
   async getHomeProduct() {
@@ -41,7 +42,35 @@ export class ProductService {
     const resPerPage = 12;
     const currentPage = Number(query.page) || 1;
     const skip = resPerPage * (currentPage - 1);
-    const products = this.productModel.find().limit(resPerPage).skip(skip);
+
+    const keyword = query.keyword
+      ? {
+          title: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          brand: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          description: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          category: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        }
+      : {};
+
+    const products = this.productModel
+      .find({ ...keyword })
+      .limit(resPerPage)
+      .skip(skip);
     return products;
   }
 
@@ -80,71 +109,47 @@ export class ProductService {
   async deleteProduct(id: string) {
     const filter = { _id: id };
 
-    const deletedProduct = await this.productModel.softDelete(filter);
+    const deletedProduct = await this.productModel.deleteOne(filter);
     return deletedProduct;
-  }
-
-  async getFilteredProducts(
-    filterProductDTO: FilterProductDTO,
-    query: Query,
-  ): Promise<Product[]> {
-    const { brand, price, search, category, expireDate } = filterProductDTO;
-    const resPerPage = 12;
-    const currentPage = Number(query.page) || 1;
-    const skip = resPerPage * (currentPage - 1);
-    let products = await this.productModel.find().limit(resPerPage).skip(skip);
-
-    if (search) {
-      products = products.filter(
-        (product) =>
-          product.title?.includes(search) ||
-          product.description?.includes(search) ||
-          product.brand?.includes(search) ||
-          product.category?.includes(search),
-      );
-    }
-    if (category) {
-      products = products.filter((product) => product.category === category);
-    }
-    if (brand) {
-      products = products.filter((product) => product.brand === brand);
-    }
-    if (price) {
-      products = products.filter((product) => product.price <= price);
-    }
-    if (expireDate) {
-      products = products.filter((product) => product.expireDate <= expireDate);
-    }
-
-    return products;
   }
 
   async getSellerFilteredProducts(
     user: User,
-    filterProductDTO: FilterProductDTO,
+    query: Query,
   ): Promise<Product[]> {
-    const { category, search, brand, price } = filterProductDTO;
-    let seller = await this.findAllByAuthorId(user.id);
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
 
-    if (search) {
-      seller = seller.filter(
-        (product) =>
-          product.title?.includes(search) ||
-          product.description?.includes(search) ||
-          product.brand?.includes(search) ||
-          product.category?.includes(search),
-      );
-    }
-    if (category) {
-      seller = seller.filter((product) => product.category === category);
-    }
-    if (brand) {
-      seller = seller.filter((product) => product.brand === brand);
-    }
-    if (price) {
-      seller = seller.filter((product) => product.price <= price);
-    }
+    // const seller = await this.findAllByAuthorId(user.id);
+    const keyword = query.keyword
+      ? {
+          title: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          brand: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          description: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          category: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        }
+      : {};
+    const products = (await this.findAllByAuthorId(user.id))
+      .find({ ...keyword })
+      .limit(resPerPage)
+      .skip(skip);
 
-    return seller;
+    return products;
   }
 }

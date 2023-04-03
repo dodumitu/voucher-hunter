@@ -61,9 +61,27 @@ export class ProductController {
   @ApiOperation({ summary: 'get all products by seller' })
   @UseGuards(AuthGuard())
   @Roles(Role.Seller)
-  async getSellerProducts(@Req() req: any, @Query() query: ExpressQuery) {
+  async getSellerProducts(
+    @Req() req: any,
+    @Query() filterProductDTO: FilterProductDTO,
+    // @Query() query: ExpressQuery,
+  ) {
     const authorId = req.user.id;
-    return this.productService.getSellerFilteredProducts(authorId, query);
+    if (Object.keys(filterProductDTO).length) {
+      const filteredProducts =
+        await this.productService.getSellerFilteredProducts(
+          authorId,
+          filterProductDTO,
+          // query,
+        );
+      return { success: true, filteredProducts };
+    } else {
+      const allProducts = await this.productService.findAllByAuthorId(
+        authorId,
+        // query,
+      );
+      return { success: true, data: allProducts };
+    }
   }
   @Get('/homeproduct')
   @UseGuards(AuthGuard())

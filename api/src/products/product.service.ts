@@ -115,38 +115,30 @@ export class ProductService {
 
   async getSellerFilteredProducts(
     user: User,
-    query: Query,
+    filterProductDTO: FilterProductDTO,
   ): Promise<Product[]> {
-    const resPerPage = 12;
-    const currentPage = Number(query.page) || 1;
-    const skip = resPerPage * (currentPage - 1);
+    const { category, search, brand, price } = filterProductDTO;
+    let seller = await this.findAllByAuthorId(user.id);
 
-    // const seller = await this.findAllByAuthorId(user.id);
-    const keyword = query.keyword
-      ? {
-          title: {
-            $regex: query.keyword.toString(),
-            $options: 'i',
-          },
-        } || {
-          brand: {
-            $regex: query.keyword.toString(),
-            $options: 'i',
-          },
-        } || {
-          description: {
-            $regex: query.keyword.toString(),
-            $options: 'i',
-          },
-        } || {
-          category: {
-            $regex: query.keyword.toString(),
-            $options: 'i',
-          },
-        }
-      : {};
-    const products = await this.findAllByAuthorId(user.id);
+    if (search) {
+      seller = seller.filter(
+        (product) =>
+          product.title?.includes(search) ||
+          product.description?.includes(search) ||
+          product.brand?.includes(search) ||
+          product.category?.includes(search),
+      );
+    }
+    if (category) {
+      seller = seller.filter((product) => product.category === category);
+    }
+    if (brand) {
+      seller = seller.filter((product) => product.brand === brand);
+    }
+    if (price) {
+      seller = seller.filter((product) => product.price <= price);
+    }
 
-    return products;
+    return seller;
   }
 }

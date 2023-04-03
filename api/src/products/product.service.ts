@@ -145,10 +145,7 @@ export class ProductService {
           },
         }
       : {};
-    const products = (await this.findAllByAuthorId(user.id))
-      .find({ ...keyword })
-      .limit(resPerPage)
-      .skip(skip);
+    const products = await this.findAllByAuthorId(user.id);
 
     return products;
   }

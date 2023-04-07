@@ -32,15 +32,6 @@ export class ProductController {
   async getProducts(@Query() query: ExpressQuery): Promise<Product[]> {
     return this.productService.getAllProducts(query);
   }
-  // else {
-  //   const allProducts = await this.productService.getAllProducts(page);
-  //   return { success: true, data: allProducts };
-  // }
-  // }
-  // @Get('/all')
-  // async getAllProducts(@Query() page) {
-  //   return await this.productService.getAllProducts(page);
-  // }
   @Get('/admin')
   @ApiOperation({ summary: 'get all products by admin' })
   @UseGuards(AuthGuard())
@@ -61,28 +52,12 @@ export class ProductController {
   @ApiOperation({ summary: 'get all products by seller' })
   @UseGuards(AuthGuard())
   @Roles(Role.Seller)
-  async getSellerProducts(
-    @Req() req: any,
-    @Query() filterProductDTO: FilterProductDTO,
-    // @Query() query: ExpressQuery,
-  ) {
+  async getSellerProducts(@Req() req: any, @Query() query: ExpressQuery) {
     const authorId = req.user.id;
-    if (Object.keys(filterProductDTO).length) {
-      const filteredProducts =
-        await this.productService.getSellerFilteredProducts(
-          authorId,
-          filterProductDTO,
-          // query,
-        );
-      return { success: true, filteredProducts };
-    } else {
-      const allProducts = await this.productService.findAllByAuthorId(
-        authorId,
-        // query,
-      );
-      return { success: true, data: allProducts };
-    }
+    const seller = await this.productService.findAllByAuthorId(authorId, query);
+    return { success: true, data: seller };
   }
+
   @Get('/homeproduct')
   @UseGuards(AuthGuard())
   @Roles(Role.Admin)

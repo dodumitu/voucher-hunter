@@ -9,6 +9,7 @@ import { User } from 'src/user/models/user.model';
 import { int } from 'aws-sdk/clients/datapipeline';
 import { Query } from 'express-serve-static-core';
 import * as mongoose from 'mongoose';
+import { query } from 'express';
 
 @Injectable()
 export class ProductService {
@@ -43,7 +44,7 @@ export class ProductService {
     const currentPage = Number(query.page) || 1;
     const skip = resPerPage * (currentPage - 1);
 
-    const keyword = query.keyword
+    const search = query.keyword
       ? {
           title: {
             $regex: query.keyword.toString(),
@@ -68,7 +69,7 @@ export class ProductService {
       : {};
 
     const products = this.productModel
-      .find({ ...keyword })
+      .find({ ...search })
       .limit(resPerPage)
       .skip(skip);
     return products;
@@ -88,8 +89,38 @@ export class ProductService {
     return newProduct.save();
   }
 
-  async findAllByAuthorId(authorId): Promise<Product[]> {
-    const product = await this.productModel.find();
+  async findAllByAuthorId(authorId, query): Promise<Product[]> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+
+    const search = query.keyword
+      ? {
+          title: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          brand: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          description: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          category: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        }
+      : {};
+    const product = await this.productModel
+      .find({ ...search })
+      .limit(resPerPage)
+      .skip(skip);
 
     return product.filter((product) => product.authorId === authorId);
   }
@@ -113,32 +144,29 @@ export class ProductService {
     return deletedProduct;
   }
 
-  async getSellerFilteredProducts(
-    user: User,
-    filterProductDTO: FilterProductDTO,
-  ): Promise<Product[]> {
-    const { category, search, brand, price } = filterProductDTO;
-    let seller = await this.findAllByAuthorId(user.id);
+  // async getSellerFilteredProducts(user: User, query): Promise<Product[]> {
+  //   // const { category, search, brand, price } = filterProductDTO;
+  //   let seller = await this.findAllByAuthorId(user.id, query);
 
-    if (search) {
-      seller = seller.filter(
-        (product) =>
-          product.title?.includes(search) ||
-          product.description?.includes(search) ||
-          product.brand?.includes(search) ||
-          product.category?.includes(search),
-      );
-    }
-    if (category) {
-      seller = seller.filter((product) => product.category === category);
-    }
-    if (brand) {
-      seller = seller.filter((product) => product.brand === brand);
-    }
-    if (price) {
-      seller = seller.filter((product) => product.price <= price);
-    }
+  //   if (search) {
+  //     seller = seller.filter(
+  //       (product) =>
+  //         product.title?.includes(search) ||
+  //         product.description?.includes(search) ||
+  //         product.brand?.includes(search) ||
+  //         product.category?.includes(search),
+  //     );
+  //   }
+  //   if (category) {
+  //     seller = seller.filter((product) => product.category === category);
+  //   }
+  //   if (brand) {
+  //     seller = seller.filter((product) => product.brand === brand);
+  //   }
+  //   if (price) {
+  //     seller = seller.filter((product) => product.price <= price);
+  //   }
 
-    return seller;
-  }
+  //   return seller;
+  // }
 }

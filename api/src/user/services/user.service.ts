@@ -43,7 +43,7 @@ export class UserService {
       _id: id,
     });
     const products =
-      (await this.productService.findAllByAuthorId(user.id)) || [];
+      (await this.productService.findAllByAuthorId(user.id, query)) || [];
     return products;
   }
   async findByLogin({ email, password }: LoginUserDto) {

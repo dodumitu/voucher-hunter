@@ -35,18 +35,10 @@ export class ProductController {
   @Get('/admin')
   @ApiOperation({ summary: 'get all products by admin' })
   @UseGuards(AuthGuard())
-  @Roles(Role.Admin, Role.Seller)
-  async getAdminProducts(
-    @Query() filterProductDTO: FilterProductDTO,
-    @Query() query: ExpressQuery,
-  ) {
-    if (Object.keys(filterProductDTO).length) {
-      const filteredProducts = await this.productService.getAllProducts(query);
-      return { success: true, filteredProducts };
-    } else {
-      const allProducts = await this.productService.getAllProducts(query);
-      return { success: true, data: allProducts };
-    }
+  @Roles(Role.Admin)
+  async getAdmin(@Query() query: ExpressQuery) {
+    const admin = await this.productService.findAllByAdmin(query);
+    return { success: true, data: admin };
   }
   @Get('/seller')
   @ApiOperation({ summary: 'get all products by seller' })

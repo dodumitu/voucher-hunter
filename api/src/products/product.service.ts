@@ -125,6 +125,42 @@ export class ProductService {
     return product.filter((product) => product.authorId === authorId);
   }
 
+  async findAllByAdmin(query): Promise<Product[]> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+
+    const search = query.keyword
+      ? {
+          title: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          brand: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          description: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          category: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        }
+      : {};
+    const product = await this.productModel
+      .find({ ...search })
+      .limit(resPerPage)
+      .skip(skip);
+
+    return product;
+  }
+
   async updateProduct(
     id: string,
     updateProductDto: UpdateProductDto,

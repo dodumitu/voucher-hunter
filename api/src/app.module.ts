@@ -8,9 +8,6 @@ import { NewsModule } from './news/news.module';
 import { UserModule } from './user/user.module';
 import * as Joi from '@hapi/joi';
 import { AwsS3Module } from './aws-s3/s3.module';
-
-// import { HomeModule } from './home/home.module';
-// import { HomeService } from './home/home.service';
 import { UploadModule } from './upload/upload.module';
 @Module({
   imports: [
@@ -18,7 +15,6 @@ import { UploadModule } from './upload/upload.module';
     UserModule,
     NewsModule,
     AwsS3Module,
-    // HomeModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({

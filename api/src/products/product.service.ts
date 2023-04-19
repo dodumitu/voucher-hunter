@@ -44,7 +44,7 @@ export class ProductService {
     const currentPage = Number(query.page) || 1;
     const skip = resPerPage * (currentPage - 1);
 
-    const search = query.keyword
+    const keyword = query.keyword
       ? {
           title: {
             $regex: query.keyword.toString(),
@@ -69,7 +69,7 @@ export class ProductService {
       : {};
 
     const products = this.productModel
-      .find({ ...search })
+      .find({ ...keyword })
       .limit(resPerPage)
       .skip(skip);
     return products;
@@ -94,7 +94,7 @@ export class ProductService {
     const currentPage = Number(query.page) || 1;
     const skip = resPerPage * (currentPage - 1);
 
-    const search = query.keyword
+    const keyword = query.keyword
       ? {
           title: {
             $regex: query.keyword.toString(),
@@ -118,11 +118,12 @@ export class ProductService {
         }
       : {};
     const product = await this.productModel
-      .find({ ...search })
+      .find({ ...keyword })
       .limit(resPerPage)
-      .skip(skip);
+      .skip(skip)
+      .populate(authorId);
 
-    return product.filter((product) => product.authorId === authorId);
+    return product;
   }
 
   async findAllByAdmin(query): Promise<Product[]> {
@@ -179,30 +180,4 @@ export class ProductService {
     const deletedProduct = await this.productModel.deleteOne(filter);
     return deletedProduct;
   }
-
-  // async getSellerFilteredProducts(user: User, query): Promise<Product[]> {
-  //   // const { category, search, brand, price } = filterProductDTO;
-  //   let seller = await this.findAllByAuthorId(user.id, query);
-
-  //   if (search) {
-  //     seller = seller.filter(
-  //       (product) =>
-  //         product.title?.includes(search) ||
-  //         product.description?.includes(search) ||
-  //         product.brand?.includes(search) ||
-  //         product.category?.includes(search),
-  //     );
-  //   }
-  //   if (category) {
-  //     seller = seller.filter((product) => product.category === category);
-  //   }
-  //   if (brand) {
-  //     seller = seller.filter((product) => product.brand === brand);
-  //   }
-  //   if (price) {
-  //     seller = seller.filter((product) => product.price <= price);
-  //   }
-
-  //   return seller;
-  // }
 }

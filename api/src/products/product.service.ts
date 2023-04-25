@@ -10,6 +10,7 @@ import { int } from 'aws-sdk/clients/datapipeline';
 import { Query } from 'express-serve-static-core';
 import * as mongoose from 'mongoose';
 import { query } from 'express';
+import { ObjectID } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -75,21 +76,7 @@ export class ProductService {
     return products;
   }
 
-  async getProduct(id: string): Promise<Product> {
-    const product = await this.productModel.findById(id).exec();
-    return product;
-  }
-
-  async addProduct(
-    user: User,
-    createProductDTO: CreateProductDto,
-  ): Promise<Product> {
-    const newProduct = await this.productModel.create(createProductDTO);
-    createProductDTO.authorId = user.id;
-    return newProduct.save();
-  }
-
-  async findAllByAuthorId(authorId, query): Promise<Product[]> {
+  async getAllProductsPriceDown(query: Query): Promise<any> {
     const resPerPage = 12;
     const currentPage = Number(query.page) || 1;
     const skip = resPerPage * (currentPage - 1);
@@ -117,21 +104,20 @@ export class ProductService {
           },
         }
       : {};
-    const product = await this.productModel
+
+    const products = this.productModel
       .find({ ...keyword })
+      .sort({ price: -1 })
       .limit(resPerPage)
-      .skip(skip)
-      .populate(authorId);
-
-    return product;
+      .skip(skip);
+    return products;
   }
-
-  async findAllByAdmin(query): Promise<Product[]> {
+  async getAllProductsPriceUp(query: Query): Promise<any> {
     const resPerPage = 12;
     const currentPage = Number(query.page) || 1;
     const skip = resPerPage * (currentPage - 1);
 
-    const search = query.keyword
+    const keyword = query.keyword
       ? {
           title: {
             $regex: query.keyword.toString(),
@@ -154,10 +140,314 @@ export class ProductService {
           },
         }
       : {};
-    const product = await this.productModel
-      .find({ ...search })
+
+    const products = this.productModel
+      .find({ ...keyword })
+      .sort({ price: 1 })
       .limit(resPerPage)
       .skip(skip);
+    return products;
+  }
+
+  async getAllProductsNewer(query: Query): Promise<any> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+
+    const keyword = query.keyword
+      ? {
+          title: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          brand: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          description: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          category: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        }
+      : {};
+
+    const products = this.productModel
+      .find({ ...keyword })
+      .sort({ expireDate: -1 })
+      .limit(resPerPage)
+      .skip(skip);
+    return products;
+  }
+
+  async getAllProductsOlder(query: Query): Promise<any> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+
+    const keyword = query.keyword
+      ? {
+          title: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          brand: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          description: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        } || {
+          category: {
+            $regex: query.keyword.toString(),
+            $options: 'i',
+          },
+        }
+      : {};
+
+    const products = this.productModel
+      .find({ ...keyword })
+      .sort({ expireDate: 1 })
+      .limit(resPerPage)
+      .skip(skip);
+    return products;
+  }
+
+  async getProduct(id: string): Promise<Product> {
+    const product = await this.productModel.findById(id).exec();
+    return product;
+  }
+
+  async addProduct(
+    user: User,
+    createProductDTO: CreateProductDto,
+  ): Promise<Product> {
+    const newProduct = await this.productModel.create(createProductDTO);
+    createProductDTO.authorId = user.id;
+    return newProduct.save();
+  }
+
+  async findAllByAuthorId(authorId, query): Promise<Product[]> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+
+    const keyword = query.keyword
+      ? {
+          $or: [
+            {
+              title: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              brand: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              description: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              category: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+          ],
+        }
+      : {};
+    const product = await this.productModel
+      .find({ ...keyword, authorId: authorId })
+      .limit(resPerPage)
+      .skip(skip);
+
+    return product;
+  }
+
+  async findAllByAuthorPriceDown(authorId, query): Promise<Product[]> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+    const keyword = query.keyword
+      ? {
+          $or: [
+            {
+              title: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              brand: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              description: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              category: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+          ],
+        }
+      : {};
+    const product = await this.productModel
+      .find({ ...keyword, authorId: authorId })
+      .sort({ price: -1 })
+      .skip(skip)
+      .limit(resPerPage);
+
+    return product;
+  }
+
+  async findAllByAuthorPriceUp(authorId, query): Promise<Product[]> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+    const keyword = query.keyword
+      ? {
+          $or: [
+            {
+              title: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              brand: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              description: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              category: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+          ],
+        }
+      : {};
+    const product = await this.productModel
+      .find({ ...keyword, authorId: authorId })
+      .sort({ price: 1 })
+      .skip(skip)
+      .limit(resPerPage);
+
+    return product;
+  }
+
+  async findAllByAuthorNewer(authorId, query): Promise<Product[]> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+    const keyword = query.keyword
+      ? {
+          $or: [
+            {
+              title: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              brand: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              description: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              category: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+          ],
+        }
+      : {};
+    const product = await this.productModel
+      .find({ ...keyword, authorId: authorId })
+      .sort({ expireDate: -1 })
+      .skip(skip)
+      .limit(resPerPage);
+
+    return product;
+  }
+
+  async findAllByAuthorOlder(authorId, query): Promise<Product[]> {
+    const resPerPage = 12;
+    const currentPage = Number(query.page) || 1;
+    const skip = resPerPage * (currentPage - 1);
+    const keyword = query.keyword
+      ? {
+          $or: [
+            {
+              title: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              brand: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              description: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+            {
+              category: {
+                $regex: query.keyword.toString(),
+                $options: 'i',
+              },
+            },
+          ],
+        }
+      : {};
+    const product = await this.productModel
+      .find({ ...keyword, authorId: authorId })
+      .sort({ expireDate: 1 })
+      .skip(skip)
+      .limit(resPerPage);
 
     return product;
   }

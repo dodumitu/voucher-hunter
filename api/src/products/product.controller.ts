@@ -22,6 +22,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { PaginationParams } from 'src/helper/paginationParams';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { Product } from './product.entity';
+import { User } from 'src/user/models/user.model';
+import { RolesGuard } from 'src/user/roles/roles.guard';
 
 @Controller('products')
 @ApiTags('products')
@@ -32,21 +34,160 @@ export class ProductController {
   async getProducts(@Query() query: ExpressQuery): Promise<Product[]> {
     return this.productService.getAllProducts(query);
   }
+
+  @Get('/price-down')
+  @ApiOperation({ summary: 'sorting price to indicate descending order' })
+  async getAllProductsPriceDown(
+    @Query() query: ExpressQuery,
+  ): Promise<Product[]> {
+    return this.productService.getAllProductsPriceDown(query);
+  }
+
+  @Get('/price-up')
+  @ApiOperation({ summary: 'sorting price to indicate ascending order' })
+  async getAllProductsPriceUp(
+    @Query() query: ExpressQuery,
+  ): Promise<Product[]> {
+    return this.productService.getAllProductsPriceUp(query);
+  }
+
+  @Get('/older')
+  @ApiOperation({ summary: 'sorting expire date to indicate ascending order' })
+  async getAllProductsOlder(@Query() query: ExpressQuery): Promise<Product[]> {
+    return this.productService.getAllProductsOlder(query);
+  }
+
   @Get('/admin')
   @ApiOperation({ summary: 'get all products by admin' })
-  @UseGuards(AuthGuard())
   @Roles(Role.Admin)
-  async getAdmin(@Query() query: ExpressQuery) {
-    const admin = await this.productService.findAllByAdmin(query);
+  @UseGuards(AuthGuard(), RolesGuard)
+  @UseGuards(RolesGuard)
+  async getAllByAdmin(@Query() query: ExpressQuery) {
+    const admin = await this.productService.getAllProducts(query);
     return { success: true, data: admin };
   }
+
+  @Get('/admin/price-down')
+  @ApiOperation({
+    summary: 'admin: sorting price to indicate descending order',
+  })
+  @UseGuards(AuthGuard())
+  @Roles(Role.Admin)
+  async getAdminPricedown(@Query() query: ExpressQuery) {
+    const admin = await this.productService.getAllProductsPriceDown(query);
+    return { success: true, data: admin };
+  }
+
+  @Get('/admin/price-up')
+  @ApiOperation({
+    summary: 'admin: sorting price to indicate descending order',
+  })
+  @UseGuards(AuthGuard())
+  @Roles(Role.Admin)
+  async getAdminPriceUp(@Query() query: ExpressQuery) {
+    const admin = await this.productService.getAllProductsPriceUp(query);
+    return { success: true, data: admin };
+  }
+
+  @Get('/admin/newer')
+  @ApiOperation({
+    summary: 'admin: sorting price to indicate ascending order',
+  })
+  @UseGuards(AuthGuard())
+  @Roles(Role.Admin)
+  async getAdminNewer(@Query() query: ExpressQuery) {
+    const admin = await this.productService.getAllProductsNewer(query);
+    return { success: true, data: admin };
+  }
+
+  @Get('/admin/older')
+  @ApiOperation({
+    summary: 'admin: sorting price to indicate descending order',
+  })
+  @UseGuards(AuthGuard())
+  @Roles(Role.Admin)
+  async getAdminOlder(@Query() query: ExpressQuery) {
+    const admin = await this.productService.getAllProductsOlder(query);
+    return { success: true, data: admin };
+  }
+
   @Get('/seller')
   @ApiOperation({ summary: 'get all products by seller' })
   @UseGuards(AuthGuard())
   @Roles(Role.Seller)
   async getSellerProducts(@Req() req: any, @Query() query: ExpressQuery) {
     const authorId = req.user.id;
+    // console.log(authorId);
     const seller = await this.productService.findAllByAuthorId(authorId, query);
+    return { success: true, data: seller };
+  }
+
+  @Get('/seller/price-down')
+  @ApiOperation({
+    summary: 'seller: sorting price to indicate descending order',
+  })
+  @UseGuards(AuthGuard())
+  @Roles(Role.Seller)
+  async findAllByAuthorPriceDown(
+    @Req() req: any,
+    @Query() query: ExpressQuery,
+  ) {
+    const authorId = req.user.id;
+    // console.log(authorId);
+    const seller = await this.productService.findAllByAuthorPriceDown(
+      authorId,
+      query,
+    );
+    return { success: true, data: seller };
+  }
+
+  @Get('/seller/price-up')
+  @ApiOperation({
+    summary: 'seller: sorting price to indicate descending order',
+  })
+  @UseGuards(AuthGuard())
+  @Roles(Role.Seller)
+  async findAllByAuthorPriceUp(@Req() req: any, @Query() query: ExpressQuery) {
+    const authorId = req.user.id;
+    // console.log(authorId);
+    const seller = await this.productService.findAllByAuthorPriceUp(
+      authorId,
+      query,
+    );
+    return { success: true, data: seller };
+  }
+
+  @Get('/seller/newer')
+  @ApiOperation({
+    summary: 'seller: sorting expire date to indicate descending order',
+  })
+  @UseGuards(AuthGuard())
+  @Roles(Role.Seller)
+  async findAllByAuthorNewer(
+    @Req() req: any,
+    @Query() query: any,
+  ): Promise<any> {
+    const authorId: string = req.user.id;
+    const products: Product[] = await this.productService.findAllByAuthorNewer(
+      authorId,
+      query,
+    );
+    return { success: true, data: products };
+  }
+
+  @Get('/seller/older')
+  @ApiOperation({
+    summary: 'seller: sorting expire date to indicate ascending order',
+  })
+  @UseGuards(AuthGuard())
+  @Roles(Role.Seller)
+  async findAllByAuthorOlder(@Req() req: any, @Query() query: ExpressQuery) {
+    const authorId = req.user.id;
+    console.log(authorId);
+    const seller = await this.productService.findAllByAuthorOlder(
+      authorId,
+      query,
+    );
     return { success: true, data: seller };
   }
 
@@ -107,4 +248,7 @@ export class ProductController {
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
     return 'Đã xoá ';
   }
+}
+function expireDate(a: Product, b: Product): number {
+  throw new Error('Function not implemented.');
 }

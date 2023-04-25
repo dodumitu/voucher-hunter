@@ -11,6 +11,7 @@ import { UserController } from './controllers/user.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AwsS3Module } from 'src/aws-s3/s3.module';
 import { ProductModule } from 'src/products/product.module';
+import { RolesGuard } from './roles/roles.guard';
 
 @Module({
   imports: [
@@ -39,6 +40,6 @@ import { ProductModule } from 'src/products/product.module';
     AwsS3Module,
   ],
   controllers: [AuthController, UserController],
-  providers: [UserService, AuthService, JwtStrategy],
+  providers: [UserService, AuthService, JwtStrategy, RolesGuard],
 })
 export class UserModule {}
